@@ -12,10 +12,15 @@
     "test:e2e": "playwright test",
     "build-only": "vite build",
     "type-check": "vue-tsc --build && tsc --project e2e/tsconfig.json --noEmit",
-    "lint": "run-s \"lint:*\"",
+    "lint": "run-s lint:oxlint lint:eslint",
     "lint:oxlint": "oxlint . --fix",
     "lint:eslint": "eslint . --fix --cache",
-    "format": "prettier --write --experimental-cli src/"
+    "lint:check": "oxlint . && eslint .",
+    "format": "prettier --write --experimental-cli src/",
+    "format:check": "prettier --check src/ e2e/ \"*.{ts,json,html}\" .vscode/extensions.json README.md",
+    "check": "pnpm lint:check && pnpm format:check && pnpm type-check && pnpm test:unit --run && git diff --check && git diff --cached --check",
+    "verify": "pnpm check && pnpm build && pnpm test:e2e && CI=1 pnpm test:e2e",
+    "hooks:install": "git config --local core.hooksPath .githooks"
   },
   "dependencies": {
     "vue": "^3.5.42",

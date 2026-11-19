@@ -31,7 +31,42 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 
 ```sh
 pnpm install
+pnpm hooks:install
 ```
+
+### Local validation and commit hook
+
+`pnpm hooks:install` sets this repository's local `core.hooksPath` to the tracked
+`.githooks/` directory. Run it once per checkout; installation does not change global
+Git configuration. No Husky or CI workflow is used. The hook requires Node and pnpm
+on the committing process's `PATH`, including when committing from an editor.
+
+```sh
+# Fast, non-mutating source checks; also runs before each commit
+pnpm check
+
+# Full local verification before marking work complete
+pnpm exec playwright install chromium # once per required browser version
+pnpm verify
+```
+
+`check` runs lint without fixes, formatting checks for application/test sources,
+root TypeScript/JSON/HTML configuration, VS Code recommendations, and this README,
+then typechecking, Vitest in run mode, and Git whitespace checks for both unstaged
+and staged tracked changes. Historical planning documents are outside the formatter
+scope. Existing `pnpm lint` and `pnpm format` remain explicit fix commands; validation
+does not rewrite or stage source files (tools may write ignored build/test caches).
+
+`verify` runs `check`, the production build, and Chromium tests against dev and
+production preview **sequentially**. Build/browser checks are deliberately outside
+the commit hook to keep commits quick. The preview run sets `CI=1` locally to select
+Playwright's production-preview mode; it does not require a CI service.
+
+The hook checks the working tree, not an isolated staged snapshot. With partially
+staged files, a passing hook does not prove the staged version passes independently.
+Git hooks can be bypassed with `git -c core.hooksPath=/dev/null commit` for a deliberate
+exception; record why and run validation afterward. To disable this setup, run
+`git config --local --unset core.hooksPath` (restore any previous custom path if needed).
 
 ### Compile and Hot-Reload for Development
 
