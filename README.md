@@ -4,7 +4,15 @@ Production starter for the Git visual learning website, scaffolded interactively
 
 Use Node `^22.18.0 || >=24.12.0` (verified on **24.22.2**) and **pnpm 12.14.0**, pinned in `package.json`. Commit `pnpm-lock.yaml` to keep installs reproducible. Existing planning documents stay in `.scratch/`; the disposable prototype is not the production source.
 
-This ticket adds no lessons, design tokens, or Tailwind integration; shared visual foundations are the next ticket. See [scaffolding verification and dependency findings](.scratch/git-visual-guide-foundation/issues/01-scaffold-vue-with-human-controlled-setup.md#verification).
+Shared visual foundations use build-time Tailwind and `src/styles/main.css`. No lesson features have been implemented. See [scaffolding and dependency findings](.scratch/git-visual-guide-foundation/issues/01-scaffold-vue-with-human-controlled-setup.md#verification).
+
+## Development design showcase
+
+Run `pnpm dev` and open **http://localhost:5173/__design/** (use the port Vite prints if 5173 is occupied). This is a separate development-server entry, not a production route. Use Tab and hover to inspect control states. The shared tokens, control/code treatments, and font declarations live in `src/styles/main.css`; the samples live in `src/dev/` and are not imported by the production app.
+
+JetBrains Mono regular and bold are self-hosted, unmodified upstream WOFF2 files from [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono/tree/master/fonts/webfonts). Their SIL Open Font License and copyright are retained in `public/fonts/OFL.txt` and shipped at `/fonts/OFL.txt`. No external font host is used.
+
+For quick iteration: `pnpm type-check` and `pnpm test:unit --run src/__tests__/DesignShowcase.spec.ts`. After a build, `pnpm test:production` checks the shipped files without a browser. `pnpm test:e2e e2e/design.spec.ts` runs one development smoke test; `CI=1 pnpm test:e2e e2e/design.spec.ts` runs one production-preview smoke test (build first). The showcase URL falls back to the starter in preview, never to the showcase. `pnpm verify` runs the full checks once. Visual foundations still require explicit human approval before lesson implementation.
 
 ## Recommended IDE Setup
 
@@ -57,7 +65,7 @@ and staged tracked changes. Historical planning documents are outside the format
 scope. Existing `pnpm lint` and `pnpm format` remain explicit fix commands; validation
 does not rewrite or stage source files (tools may write ignored build/test caches).
 
-`verify` runs `check`, the production build, and Chromium tests against dev and
+`verify` runs `check`, the production build, a browser-free production-artifact check, and Chromium tests against dev and
 production preview **sequentially**. Build/browser checks are deliberately outside
 the commit hook to keep commits quick. The preview run sets `CI=1` locally to select
 Playwright's production-preview mode; it does not require a CI service.

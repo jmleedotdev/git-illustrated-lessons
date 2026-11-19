@@ -1,0 +1,241 @@
+@import 'tailwindcss' source('../');
+
+/* Approved revised A palette. These are application tokens, not a showcase theme. */
+@theme static {
+  --color-*: initial;
+  --color-paper: #f4ebe0;
+  --color-sheet: #f9f2e8;
+  --color-panel: #f8f0e6;
+  --color-ink: #1d1b18;
+  --color-outline: #34302b;
+  --color-muted: #6f6961;
+  --color-rule: #ddd3c5;
+  --color-git: #f05032;
+  --color-charcoal: #302923;
+  --color-on-charcoal: #fff2e5;
+  --color-peach: #f6d2b7;
+  --color-slate: #dce1e3;
+  --color-terracotta: #f3ad96;
+  --color-hover: #f5b5a2;
+  --color-focus: #a33723;
+  --color-code: #efe3d5;
+  --color-code-ink: #51382b;
+  --color-code-rule: #d5c4b3;
+  --color-idea: #f7e2d6;
+  --color-idea-rule: #ddbcaa;
+  --color-idea-ink: #783b28;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+  --spacing: 0.25rem;
+  --spacing-inset: 1rem;
+  --spacing-layout: 1.5rem;
+  --spacing-section: 2rem;
+  --spacing-target: 2.75rem;
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.5;
+  --text-story: 1rem;
+  --text-story--line-height: 1.75;
+  --text-heading: 1.5rem;
+  --text-heading--line-height: 1.35;
+  --text-title: 1.875rem;
+  --text-title--line-height: 1.2;
+  --radius-control: 0.4375rem;
+  --radius-sheet: 0.875rem;
+  --shadow-offset: 2px 3px 0 var(--color-outline);
+  --shadow-small: 1px 2px 0 var(--color-outline);
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --border-hairline: 1px;
+  --border-ink: 2px;
+  --focus-width: 3px;
+  --focus-offset: 4px;
+  color-scheme: light;
+  font-synthesis: none;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
+    font-size: var(--text-story);
+    line-height: 1.75;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+
+  h1 {
+    font-size: var(--text-title);
+    line-height: 1.2;
+    letter-spacing: -0.045em;
+  }
+
+  h2 {
+    font-size: var(--text-heading);
+    line-height: 1.35;
+    letter-spacing: -0.035em;
+  }
+
+  h3 {
+    font-size: var(--text-story);
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: var(--focus-width) solid var(--color-focus);
+    outline-offset: var(--focus-offset);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+
+  code,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  :not(pre) > code {
+    background: var(--color-code);
+    color: var(--color-code-ink);
+    border: var(--border-hairline) solid var(--color-code-rule);
+    border-radius: var(--radius-control);
+    padding: 0.0625rem 0.25rem;
+    font-size: 0.9375em;
+    overflow-wrap: anywhere;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+}
+
+@layer components {
+  .paper-sheet {
+    min-width: 0;
+    padding: var(--spacing-inset);
+    background: var(--color-sheet);
+    border: var(--border-hairline) solid var(--color-rule);
+    border-radius: var(--radius-sheet);
+  }
+
+  .story-text {
+    font-size: var(--text-story);
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+  }
+
+  .eyebrow {
+    color: var(--color-muted);
+    font-size: var(--text-label);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .control {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--spacing-target);
+    min-width: var(--spacing-target);
+    padding: 0.5rem 0.75rem;
+    background: var(--color-panel);
+    color: var(--color-ink);
+    border: var(--border-ink) solid var(--color-outline);
+    border-radius: var(--radius-control);
+    font: inherit;
+    line-height: 1.5;
+    cursor: pointer;
+  }
+
+  .control-primary {
+    background: var(--color-git);
+    box-shadow: var(--shadow-offset);
+    font-weight: 700;
+  }
+
+  .control:hover:not(:disabled) {
+    background: var(--color-hover);
+  }
+
+  .control:active:not(:disabled) {
+    box-shadow: none;
+  }
+
+  .control:disabled {
+    background: var(--color-slate);
+    color: var(--color-muted);
+    border-color: var(--color-muted);
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+
+  .command-block {
+    margin: 0;
+    padding: var(--spacing-inset);
+    background: var(--color-charcoal);
+    color: var(--color-on-charcoal);
+    border: var(--border-ink) solid var(--color-charcoal);
+    border-radius: var(--radius-control);
+    font-size: var(--text-story);
+    line-height: 1.75;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .key-idea {
+    padding: var(--spacing-inset);
+    background: var(--color-idea);
+    border: var(--border-hairline) solid var(--color-idea-rule);
+    border-radius: var(--radius-control);
+  }
+
+  .key-idea h3 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-idea-ink);
+  }
+
+  .key-idea p {
+    margin-top: 0.5rem;
+  }
+
+  .ink-illustration {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: var(--color-outline);
+    stroke-width: var(--border-ink);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    font-family: var(--font-mono);
+  }
+}
