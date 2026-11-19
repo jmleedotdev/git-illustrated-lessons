@@ -12,7 +12,7 @@ Run `pnpm dev` and open **http://localhost:5173/__design/** (use the port Vite p
 
 JetBrains Mono regular and bold are self-hosted, unmodified upstream WOFF2 files from [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono/tree/master/fonts/webfonts). Their SIL Open Font License and copyright are retained in `public/fonts/OFL.txt` and shipped at `/fonts/OFL.txt`. No external font host is used.
 
-For quick iteration: `pnpm type-check` and `pnpm test:unit --run src/__tests__/DesignShowcase.spec.ts`. After a build, `pnpm test:production` checks the shipped files without a browser. `pnpm test:e2e e2e/design.spec.ts` runs one development smoke test; `CI=1 pnpm test:e2e e2e/design.spec.ts` runs one production-preview smoke test (build first). The showcase URL falls back to the starter in preview, never to the showcase. `pnpm verify` runs the full checks once. Visual foundations still require explicit human approval before lesson implementation.
+For quick iteration: `pnpm type-check` and `pnpm test:unit --run src/__tests__/DesignShowcase.spec.ts`. After a build, `pnpm test:production` checks the shipped files without a browser. `pnpm test:e2e e2e/design.spec.ts` runs one development smoke test; `CI=1 pnpm test:e2e e2e/design.spec.ts` runs one production-preview smoke test (build first). The showcase URL falls back to the starter in preview, never to the showcase. `pnpm verify` runs the full checks once. The revised visual foundations have explicit human approval recorded in foundation ticket 02. The first-lesson ticket is unblocked but has not been started.
 
 ## Recommended IDE Setup
 

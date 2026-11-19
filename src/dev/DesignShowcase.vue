@@ -192,7 +192,7 @@ const spaces = [
         </section>
       </div>
       <p class="border-t border-rule pt-inset text-label text-muted">
-        Visual approval pending. Shared foundations ship with the app; this page does not.
+        Shared foundations ship with the app; this page does not.
       </p>
     </main>
   </div>

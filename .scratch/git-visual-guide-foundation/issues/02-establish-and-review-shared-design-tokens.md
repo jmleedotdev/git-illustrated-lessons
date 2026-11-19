@@ -6,7 +6,9 @@
 
 **Blocked by:** [01 — Scaffold Vue with human-controlled setup](01-scaffold-vue-with-human-controlled-setup.md).
 
-**Status:** ready-for-agent
+**Status:** resolved
+
+**Implementation:** complete; human visual approval recorded below.
 
 Preserve the existing approved final revised A presentation, not a new design direction. The shared tokens belong to the production application; the showcase is development tooling only. Do not build a full component library, lesson player, or new public site destination.
 
@@ -19,7 +21,7 @@ Preserve the existing approved final revised A presentation, not a new design di
 - [x] Add a repeatable verification that development can display the showcase and a production build/preview cannot expose it. Shared tokens and font assets remain available in production.
 - [x] Verify compiled Tailwind utilities and no reset regressions in controls, focus, command blocks, or SVG. Check contrast, keyboard focus, at least 16px story-text samples, and 44×44px interactive targets.
 - [x] Review representative desktop and phone layouts, 320 CSS px, and 200% zoom for readability and overflow. Record screenshots, commands, actual outcomes, and any failures; passing a build is not visual approval.
-- [ ] Document how to launch the development showcase and present it to the user. Record explicit human approval or requested adjustments; leave this ticket incomplete until the user approves the visual foundations. First-lesson implementation remains blocked until then.
+- [x] Document how to launch the development showcase and present it to the user. Record explicit human approval or requested adjustments; leave this ticket incomplete until the user approves the visual foundations. First-lesson implementation remains blocked until then.
 
 ## Comments
 
@@ -30,3 +32,5 @@ Checks: focused Vitest, typecheck, build/artifact check, and one Chromium smoke 
 Human requested the prototype sphere rather than the redrawn sample. Restored the exact revised-A sphere paths, clipped side shade, cream highlight, outline, ground shadow, and label proportions from `HistoryPrototype.vue`, with shared color tokens; refreshed desktop/phone/320px/200% captures (no overflow). Folded-page SVGs are for individual working/staged files, starting with untracked `notes.txt` in the first lesson; spheres remain commit snapshots. Approval remains pending.
 
 Human confirmed the restored sphere is correct and requested removal of the square board beneath the folded page. Removed that board and, on the human’s next request, added a small solid offset shadow behind the folded page, then an oval ground shadow beneath it to convey floating. The page and sphere share the ground-shadow color token. The approved sphere is unchanged. This confirms the sphere, not approval of all visual foundations.
+
+**Final approval:** The human approved the revised visual foundations with “ok i'm satisfy with this” after the folded-page ground shadow was added. Ticket 02 is complete; ticket 03 is unblocked but has not been started. Final `pnpm verify` passed after the shadow changes; independent Standards and Spec reviews found no issues. No separate validation report was created.
