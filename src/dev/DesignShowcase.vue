@@ -66,9 +66,9 @@ const spaces = [
           >
             <title id="illustration-title">Paper and ink illustration sample</title>
             <desc id="illustration-description">
-              An isometric paper tile, a folded document, and a comic sphere with flat peach
-              shading, an ink outline, and a solid offset shadow. These are styling samples, not Git
-              state.
+              A folded document represents an individual file. The commit sphere uses the approved
+              prototype’s clipped side shading, cream highlight, bold outline, and small ground
+              shadow. These are styling samples, not a lesson state.
             </desc>
             <path d="M24 211 142 152 260 211 142 270Z" class="fill-peach stroke-outline" />
             <path d="M24 211v14l118 59v-14Z" class="fill-slate stroke-outline" />
@@ -78,17 +78,37 @@ const spaces = [
               d="M162 72v24h24M115 121h52m-52 14h42m-42 14h47"
               class="fill-none stroke-outline"
             />
-            <circle cx="350" cy="167" r="57" class="fill-outline" />
-            <circle cx="345" cy="160" r="57" class="fill-peach stroke-outline" />
-            <path d="M296 189a57 57 0 0 0 102-9c-36 23-74 15-102 9Z" class="fill-terracotta" />
-            <circle cx="345" cy="160" r="57" class="fill-none stroke-outline" />
-            <path d="M310 140q5-12 17-17" class="fill-none stroke-outline" />
-            <text x="345" y="170" text-anchor="middle" class="fill-ink text-heading font-bold">
-              ink
-            </text>
+            <defs>
+              <clipPath id="showcase-commit-clip"><circle r="42" /></clipPath>
+            </defs>
+            <!-- Preserve final revised A geometry from HistoryPrototype.vue, not a redrawing. -->
+            <g transform="translate(345 160) scale(1.35)">
+              <ellipse cx="5" cy="49" rx="31" ry="6" class="fill-commit-shadow" />
+              <circle r="42" class="fill-commit-current" />
+              <path
+                d="M20-45C36-12 20 26-29 40L-29 60H60V-45Z"
+                clip-path="url(#showcase-commit-clip)"
+                class="fill-commit-current-shade"
+              />
+              <circle r="42" fill="none" class="stroke-charcoal" stroke-width="3" />
+              <path
+                d="M-28-12Q-25-27-11-30"
+                fill="none"
+                class="stroke-commit-highlight"
+                stroke-width="5"
+                stroke-linecap="round"
+              />
+              <text y="8" text-anchor="middle" class="fill-charcoal font-bold" font-size="22">
+                c1
+              </text>
+              <text y="80" text-anchor="middle" class="fill-charcoal" font-size="17">
+                notes.txt
+              </text>
+            </g>
           </svg>
           <p class="text-story">
-            Peach, slate, and terracotta sit beside warm paper—not gradients or soft lighting.
+            Folded pages represent individual files; comic spheres represent recorded commits. The
+            sphere preserves the approved prototype’s shape, shading, and highlight.
           </p>
           <div class="flex flex-wrap gap-inset">
             <span class="rounded-control border border-outline bg-panel p-3">1px outline</span>
