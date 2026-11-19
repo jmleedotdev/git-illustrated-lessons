@@ -8,7 +8,7 @@ This file is a ticket-breakdown index, not a second implementation spec. The [ma
 
 1. [Scaffold Vue with human-controlled setup](issues/01-scaffold-vue-with-human-controlled-setup.md) — implementation complete; setup choices, verification, and unresolved development-dependency advisories recorded in the ticket.
 2. [Establish and review shared design tokens](issues/02-establish-and-review-shared-design-tokens.md) — complete, including explicit human approval of the revised visual foundations.
-3. [Build and play Start a repository with approved tokens](issues/03-build-and-play-start-a-repository.md) — unblocked; not started.
+3. [Build and play Start a repository with approved tokens](issues/03-build-and-play-start-a-repository.md) — implementation complete, with production build and browser checks recorded in the ticket.
 
 The showcase is development tooling, not a production destination. Shared tokens and licensed font assets ship with the website; the showcase entry, examples, and showcase-only assets do not ship in the production build.
 

@@ -5,7 +5,7 @@ if (process.env.CI) {
   test('production cannot render the development showcase', async ({ page }) => {
     // SPA fallback is acceptable; returning the development entry is not.
     await page.goto('/__design/')
-    await expect(page.getByRole('heading', { name: 'You did it!' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Start a repository' })).toBeVisible()
     await expect(page.getByRole('heading', { name: 'Paper, ink & Git.' })).toHaveCount(0)
     await expect(page.locator('script[src*="/src/dev/"]')).toHaveCount(0)
     await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(244, 235, 224)')

@@ -1,10 +1,10 @@
 # vibe-website
 
-Production starter for the Git visual learning website, scaffolded interactively with official create-vue in the repository root. Uses Vue, TypeScript, Vite, and the user-selected Router, Vitest, Playwright, ESLint/Oxlint, and Prettier. Experimental features and example code were not selected.
+An illustrated Git learning website built with Vue, TypeScript, Vite, and Tailwind CSS. The first lesson, **Start a repository**, shows what happens when Alice runs `git init`. Run `pnpm dev` and open the URL Vite prints to play it.
 
 Use Node `^22.18.0 || >=24.12.0` (verified on **24.22.2**) and **pnpm 12.14.0**, pinned in `package.json`. Commit `pnpm-lock.yaml` to keep installs reproducible. Existing planning documents stay in `.scratch/`; the disposable prototype is not the production source.
 
-Shared visual foundations use build-time Tailwind and `src/styles/main.css`. No lesson features have been implemented. See [scaffolding and dependency findings](.scratch/git-visual-guide-foundation/issues/01-scaffold-vue-with-human-controlled-setup.md#verification).
+The lesson player uses browser hash locations. Shared design tokens live in `src/styles/main.css`. See [scaffolding and dependency findings](.scratch/git-visual-guide-foundation/issues/01-scaffold-vue-with-human-controlled-setup.md#verification).
 
 ## Development design showcase
 
@@ -12,7 +12,7 @@ Run `pnpm dev` and open **http://localhost:5173/__design/** (use the port Vite p
 
 JetBrains Mono regular and bold are self-hosted, unmodified upstream WOFF2 files from [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono/tree/master/fonts/webfonts). Their SIL Open Font License and copyright are retained in `public/fonts/OFL.txt` and shipped at `/fonts/OFL.txt`. No external font host is used.
 
-For quick iteration: `pnpm type-check` and `pnpm test:unit --run src/__tests__/DesignShowcase.spec.ts`. After a build, `pnpm test:production` checks the shipped files without a browser. `pnpm test:e2e e2e/design.spec.ts` runs one development smoke test; `CI=1 pnpm test:e2e e2e/design.spec.ts` runs one production-preview smoke test (build first). The showcase URL falls back to the starter in preview, never to the showcase. `pnpm verify` runs the full checks once. The revised visual foundations have explicit human approval recorded in foundation ticket 02. The first-lesson ticket is unblocked but has not been started.
+For quick iteration: `pnpm type-check` and `pnpm test:unit --run src/__tests__/DesignShowcase.spec.ts`. After a build, `pnpm test:production` checks the shipped files without a browser. `pnpm test:e2e e2e/design.spec.ts` runs one development smoke test; `CI=1 pnpm test:e2e e2e/design.spec.ts` runs one production-preview smoke test (build first). In production preview, the showcase URL opens the lesson. `pnpm verify` runs the full checks once. The revised visual foundations have explicit human approval recorded in foundation ticket 02.
 
 ## Recommended IDE Setup
 
@@ -116,8 +116,8 @@ pnpm build
 pnpm test:e2e
 # Runs against the production preview instead (build first)
 CI=1 pnpm test:e2e
-# Runs the starter smoke test only
-pnpm test:e2e e2e/vue.spec.ts
+# Runs only the lesson tests
+pnpm test:e2e e2e/lesson.spec.ts
 # Opens the browser for debugging
 pnpm test:e2e --headed
 pnpm test:e2e --debug
