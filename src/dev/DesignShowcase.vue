@@ -70,9 +70,8 @@ const spaces = [
               prototype’s clipped side shading, cream highlight, bold outline, and small ground
               shadow. These are styling samples, not a lesson state.
             </desc>
-            <path d="M24 211 142 152 260 211 142 270Z" class="fill-peach stroke-outline" />
-            <path d="M24 211v14l118 59v-14Z" class="fill-slate stroke-outline" />
-            <path d="m142 270 118-59v14l-118 59Z" class="fill-terracotta stroke-outline" />
+            <ellipse cx="145" cy="229" rx="36" ry="6" class="fill-ground-shadow" />
+            <path d="M98 72h64l24 24v111H98Z" transform="translate(3 4)" class="fill-outline" />
             <path d="M98 72h64l24 24v111H98Z" class="fill-sheet stroke-outline" />
             <path
               d="M162 72v24h24M115 121h52m-52 14h42m-42 14h47"
@@ -83,7 +82,7 @@ const spaces = [
             </defs>
             <!-- Preserve final revised A geometry from HistoryPrototype.vue, not a redrawing. -->
             <g transform="translate(345 160) scale(1.35)">
-              <ellipse cx="5" cy="49" rx="31" ry="6" class="fill-commit-shadow" />
+              <ellipse cx="5" cy="49" rx="31" ry="6" class="fill-ground-shadow" />
               <circle r="42" class="fill-commit-current" />
               <path
                 d="M20-45C36-12 20 26-29 40L-29 60H60V-45Z"
