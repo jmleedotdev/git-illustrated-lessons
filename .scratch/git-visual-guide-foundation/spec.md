@@ -6,7 +6,7 @@ This file is a ticket-breakdown index, not a second implementation spec. The [ma
 
 ## Tickets and frontier
 
-1. [Scaffold Vue with human-controlled setup](issues/01-scaffold-vue-with-human-controlled-setup.md) — ready-for-human; no blockers.
+1. [Scaffold Vue with human-controlled setup](issues/01-scaffold-vue-with-human-controlled-setup.md) — implementation complete; setup choices, verification, and unresolved development-dependency advisories recorded in the ticket.
 2. [Establish and review shared design tokens](issues/02-establish-and-review-shared-design-tokens.md) — blocked by 01.
 3. [Build and play Start a repository with approved tokens](issues/03-build-and-play-start-a-repository.md) — blocked by 02, including explicit human visual approval.
 
