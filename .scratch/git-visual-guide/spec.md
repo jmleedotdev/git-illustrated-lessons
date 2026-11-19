@@ -105,9 +105,19 @@ This document contains the implementation requirements and acceptance gates. The
 
 - Use Vue, TypeScript, SVG, Vite, and Tailwind CSS. Do not substitute React, Next.js, Three.js, or React Three Fiber.
 - Integrate the tailwindcss and @tailwindcss/vite packages through the Tailwind Vite plugin alongside the Vue Vite plugin. Import Tailwind in the application's main stylesheet and compile it at build time; do not use a browser CDN.
-- Use Tailwind utilities for layout, spacing, typography, responsive behavior, and interaction states. Define shared theme tokens for the approved palette, monospaced font, borders, and offset shadows. Tailwind defaults must not replace the approved visual treatment.
+- Use Tailwind utilities for layout, spacing, typography, responsive behavior, and interaction states. Define shared semantic theme tokens for the approved palette, monospaced typography, spacing, borders, offset shadows, and visible focus treatment. Tailwind defaults must not replace the approved visual treatment.
+- Provide a browser-viewable design-token showcase for development usage only, consuming the same shared tokens and styles as the website. Demonstrate representative typography, surfaces, command/inline-code treatments, Key idea callouts, SVG styling, and control states without building lesson features or a speculative component library.
+- Shared tokens and licensed font assets are production foundations. The showcase must not appear in production navigation or ship as production routes, generated pages, JavaScript bundles, or showcase-only assets. Hiding a link is insufficient.
 - Focused custom CSS and SVG attributes remain appropriate for isometric geometry and authored motion. Tailwind does not replace scene renderers, player logic, or accessibility behavior.
 - Ship the light presentation only. Self-host the chosen monospaced font with an appropriate license and a monospace fallback; do not carry forward the prototype's externally hosted font dependency.
+
+#### Foundation-first implementation sequence
+
+1. Scaffold the production application using the official interactive create-vue command after agreeing on the package manager and destination. The user answers the installation questions; do not silently choose flags or defaults on their behalf. Preserve the required Vue, TypeScript, and Vite stack and provide Vitest/Playwright support. Keep the disposable prototype separate.
+2. Establish shared design tokens and the development-only showcase before lesson features. Review the approved visual treatment on desktop and phone, including readability, contrast, keyboard focus, narrow layouts, and zoom. Record explicit human approval; feature implementation remains blocked until that approval is given.
+3. Implement Start a repository using the approved tokens, then proceed through the feature tickets' blocking edges. Token approval does not replace the production lesson visual acceptance gates below.
+
+The [foundation breakdown index](../git-visual-guide-foundation/spec.md) links the executable child tickets for this sequence. Installation details and blocking edges belong in those tickets; this document remains the authoritative implementation spec.
 
 ### 3. Authored-state architecture and public interfaces
 
@@ -242,7 +252,7 @@ There is no production application or automated test suite to extend. Prior art 
 
 ### Automated checks
 
-1. **Toolchain:** TypeScript checking and the Vite production build pass. Confirm Tailwind utilities are compiled and retained and reset styles do not regress controls, focus indicators, command blocks, or SVG presentation.
+1. **Toolchain:** TypeScript checking and the Vite production build pass. Confirm Tailwind utilities are compiled and retained and reset styles do not regress controls, focus indicators, command blocks, or SVG presentation. Add a repeatable check that the token showcase is browser-viewable during development but absent from production routes, generated pages, JavaScript bundles, and showcase-only assets. Verify production preview cannot render the showcase even when its development location is requested directly; shared tokens and licensed font assets must remain available to the production website.
 2. **Vitest — lesson content:** Validate every authored lesson's independent starting state and state/change consistency, including no hidden initial commit; untracked-to-staged behavior; different working/staged contents; the first commit recording staged contents while retaining the unstaged edit; staging matching the commit afterward; c1 without parents; c2–c4 parent links; c5's ordered parents; branch/HEAD positions; and clean branch switches.
 3. **Vitest — remote content:** Validate an empty hosted repository; origin without transfer or upstream; push publishing c1–c5 and hosted main at c5; local main/ideas retained; no separately published ideas branch; exclusion of uncommitted working/staged contents; and the origin/main upstream association. Check the stated exclusion even though the approved remote starting state is clean.
 4. **Vitest — public player interface:** Check location normalization, lesson/step selection, boundary controls, separate Next lesson, Replay without location changes, independent Replay after direct entry, immediate versus animated navigation, interrupted transitions, and reduced-motion behavior. Superseded work must not overwrite the destination.
@@ -283,7 +293,7 @@ At every checkpoint present **desktop and phone screenshots plus normal-motion r
 - React, Next.js, Three.js, React Three Fiber, realistic 3D rendering, and speculative plugin/adapter infrastructure.
 - Search, theme switching, Practice/Design Lab/Cheatsheets destinations, language controls, and other unapproved reference-site features.
 - Prototype comparison controls, debug displays, placeholder course navigation, unselected design treatments, externally hosted prototype fonts, and promotion of the disposable prototype as production scaffolding.
-- Building the application during this spec-consolidation task. Publishing this local spec does not authorize initializing Git, creating a remote, pushing, opening a PR, publishing a site, or deploying. No deployment target or separate implementation issue set is implied.
+- Building the application during this spec-consolidation task. Publishing this local spec does not authorize initializing Git, creating a remote, pushing, opening a PR, publishing a site, or deploying. No deployment target is implied. Implementation is sequenced through the published tickets, including the foundation breakdown linked above; publication alone does not authorize starting them.
 
 ## Further Notes
 

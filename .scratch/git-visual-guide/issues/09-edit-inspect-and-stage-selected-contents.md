@@ -4,11 +4,11 @@
 
 **Parent:** [Git visual learning website — implementation spec](../spec.md)
 
-**Blocked by:** [08 — Open and play “Start a repository”](08-open-and-play-start-a-repository.md).
+**Blocked by:** [Foundation 03 — Build and play “Start a repository” with approved tokens](../../git-visual-guide-foundation/issues/03-build-and-play-start-a-repository.md).
 
 **Status:** ready-for-agent
 
-Extend the production experience established by 08 and preserve the parent spec's visual, player, responsive, accessibility, and safety contracts. Each lesson is independently authored; earlier playback is never a prerequisite for opening it.
+Extend the production experience established by foundation ticket 03 (the completed first-lesson slice of 08) and preserve the parent spec's visual, player, responsive, accessibility, and safety contracts. Each lesson is independently authored; earlier playback is never a prerequisite for opening it.
 
 - [ ] Edit and inspect begins with the initialized repository, untracked notes.txt, and no commits. Editing and inspecting git status leave the file untracked and create no history automatically.
 - [ ] Choose what to stage begins with edited, untracked notes.txt and no commits. Staging selected contents starts tracking the file while leaving the working file present.
