@@ -308,7 +308,7 @@ These links retain decision history and visual examples; the requirements themse
 | Responsive layout and accessibility | [Choose fidelity exceptions for responsive layout and reduced motion](issues/05-fidelity-exceptions.md#answer) |
 | Comic spheres and shared history | [Choose the visual language for history, branches, HEAD, and merging](issues/06-history-branch-merge-visuals.md#answer) |
 | Separate repositories and first push | [Choose the visual explanation of remote setup and first push](issues/07-remote-visuals.md#answer) |
-| Disposable visual comparison evidence | [Prototype run instructions and limitations](prototype/README.md): final A for staging, history, and remote studies |
+| Disposable visual comparison evidence | Prototype run instructions and limitations: `.scratch/git-visual-guide/prototype/README.md` on branch `prototype/git-visual-guide` (baseline `fc6ad28`); final A for staging, history, and remote studies. Inspect with `git show prototype/git-visual-guide:.scratch/git-visual-guide/prototype/README.md`, or check out that branch in a separate worktree. |
 | Tailwind setup reference for implementation | [Official Vite integration](https://tailwindcss.com/docs/installation/using-vite) |
 
 Keep the prototype disposable. Its old scenario, Google Fonts dependency, debug tools, simple fades, and historical tooling audit findings are not a production starting contract. Recheck current dependencies and security status when production tooling is separately authorized; do not copy its dependency tree or present old audit results as current facts.
