@@ -15,6 +15,9 @@ test('every step is independently readable and navigable', async ({ page }) => {
       page.getByRole('button', { name: new RegExp(`^Step ${index + 1}:`) }),
     ).toHaveAttribute('aria-current', 'step')
     await expect(page.getByRole('status')).toContainText(`Step ${index + 1} of 3`)
+    await expect(page.getByText('Before you begin', { exact: true })).toHaveCount(
+      index === 0 ? 1 : 0,
+    )
     await expect(page.getByRole('button', { name: 'Back', exact: true })).toBeEnabled({
       enabled: index !== 0,
     })
@@ -201,6 +204,7 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
   expect(
     (await bar.getByRole('button', { name: 'Back' }).boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44)
+  await page.goto('/#/start-a-repository/1')
   await page.getByRole('button', { name: /^Step 3:/ }).press('Tab')
   await expect(details).toBeFocused()
   await expect
@@ -221,6 +225,7 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
       return bounds.y + bounds.height
     })
     .toBeLessThan((await bar.boundingBox())!.y)
+  await page.goto('/#/start-a-repository/3')
   await page.setViewportSize({ width: 320, height: 700 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   await expect(page.getByRole('button', { name: 'Pause animation' })).toHaveCSS(

@@ -252,7 +252,7 @@ onUnmounted(() => {
               <h3 class="eyebrow">What changed</h3>
               <p class="story-text"><InlineText :text="step.change" /></p>
             </div>
-            <details class="text-label">
+            <details v-if="lesson === lessons[0] && location.step === 1" class="text-label">
               <summary class="prerequisite-toggle">Before you begin</summary>
               <p class="mt-2">
                 To follow along on your own, install Git and configure your commit identity. Later

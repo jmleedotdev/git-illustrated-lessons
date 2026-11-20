@@ -24,6 +24,8 @@ test('opens every commit and history step independently and inspects without che
   const inspector = figure.getByRole('region', { name: 'Recorded snapshot inspector' })
   const first = inspector.getByRole('button', { name: 'Inspect c1' })
   const second = inspector.getByRole('button', { name: 'Inspect c2' })
+  await expect(first).toHaveText('c1')
+  await expect(second).toHaveText('c2')
   await first.click()
   await expect(first).toHaveAttribute('aria-pressed', 'true')
   await expect(inspector).toContainText('Git keeps a history.')
@@ -50,6 +52,13 @@ test('replays commit creation and settles when navigation or reduced motion inte
   await expect(figure).toHaveAttribute('aria-busy', 'true')
   await expect(root).toBeHidden()
   await expect(scene.getByText('Version B · Staged', { exact: true })).toBeVisible()
+  await expect(root).toBeVisible()
+  const sphere = scene.locator('[data-new-commit]')
+  expect(
+    await sphere.evaluate(
+      (element) => element.getAnimations()[0]?.effect?.getComputedTiming().duration,
+    ),
+  ).toBe(600)
   await expect(figure).toHaveAttribute('aria-busy', 'false')
   await expect(root).toBeVisible()
   await expect(scene.getByText('Version B · Matches c1', { exact: true })).toBeVisible()
@@ -117,4 +126,22 @@ test('keeps history and keyboard inspection reachable on a narrow phone and shor
   await timeline.scrollIntoViewIfNeeded()
   await expect(timeline).toBeInViewport({ ratio: 1 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(1200)
+})
+
+test('reads history newest first with the standard sphere fade duration', async ({ page }) => {
+  await page.goto('/#/read-the-history/4')
+  const figure = page.getByRole('figure', { name: 'Repository illustration' })
+  const graph = figure.getByRole('img', { name: /Repository scene/ })
+  const pulseDuration = (id: string) =>
+    graph.getByText(id, { exact: true }).evaluate((label) => {
+      const sphere = label.closest('[data-history-node]')
+      return sphere?.getAnimations()[0]?.effect?.getComputedTiming().duration
+    })
+
+  await figure.getByRole('button', { name: 'Replay' }).click()
+  await expect.poll(() => pulseDuration('c2')).toBe(600)
+  expect(await pulseDuration('c1')).toBeUndefined()
+  await expect.poll(() => pulseDuration('c1')).toBe(600)
+  await expect(figure).toHaveAttribute('aria-busy', 'false')
+  await expect(page).toHaveURL(/#\/read-the-history\/4$/)
 })

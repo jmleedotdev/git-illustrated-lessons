@@ -68,6 +68,7 @@ test('opens every editing and staging step in its completed state', async ({ pag
       await page.goto(`/#/${slug}/${index + 1}`)
       await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
       await expect(page.getByRole('status')).toContainText(`Step ${index + 1} of ${steps.length}`)
+      await expect(page.getByText('Before you begin', { exact: true })).toHaveCount(0)
       await expect(scene).toHaveAccessibleDescription(/no commits/i)
       for (const label of [working, staging, 'No commits']) {
         await expect(scene.getByText(label, { exact: true })).toBeVisible()
@@ -246,8 +247,6 @@ test('keeps distinct versions readable on phones and the guide reachable on shor
   const bar = page.getByRole('navigation', { name: 'Walkthrough' })
   await expect(bar).toHaveCSS('position', 'fixed')
   await page.getByRole('button', { name: /^Step 2:/ }).press('Tab')
-  await expect(page.getByText('Before you begin', { exact: true })).toBeFocused()
-  await page.keyboard.press('Tab')
   await expect(bar.getByRole('button', { name: 'Back' })).toBeFocused()
   await page.keyboard.press('Tab')
   await expect(nextLesson).toBeFocused()
@@ -265,9 +264,9 @@ test('keeps distinct versions readable on phones and the guide reachable on shor
   const guide = page.getByRole('region', { name: 'Alice makes another edit.' })
   const sceneBounds = (await figure.boundingBox())!
   expect(sceneBounds.x + sceneBounds.width).toBeLessThan((await guide.boundingBox())!.x)
-  const prerequisites = guide.getByText('Before you begin', { exact: true })
-  await prerequisites.scrollIntoViewIfNeeded()
-  await expect(prerequisites).toBeInViewport()
+  const change = guide.getByRole('heading', { name: 'What changed' })
+  await change.scrollIntoViewIfNeeded()
+  await expect(change).toBeInViewport()
   await expect(page.getByRole('navigation', { name: 'Explanation steps' })).toBeInViewport({
     ratio: 1,
   })

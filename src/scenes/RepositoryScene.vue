@@ -21,6 +21,7 @@ const copy = shallowRef<{ file: FileContents; from: number }>()
 const before = shallowRef<RepositoryState>()
 const sceneDuration = 1030
 const captionExitDuration = 430
+const captionEnterDuration = sceneDuration - captionExitDuration
 const statusFadeDuration = 1600
 const zoneGap = 310
 const pagePosition = (zone: number) => `translate(${27 + zone * zoneGap},93)`
@@ -156,7 +157,7 @@ watch(
           { opacity: 1, transform: `translate(${dx * 0.8}px, -40px) scale(.75)`, offset: 0.75 },
           { opacity: 0, transform: `translate(${dx}px, ${dy}px) scale(.35)` },
         ],
-        720,
+        sceneDuration - captionEnterDuration,
       )
       if (cancelled) return
       copy.value = undefined
@@ -171,7 +172,7 @@ watch(
             { opacity: 0.35, transform: 'translateY(-14px)' },
             { opacity: 1, transform: 'translateY(0)' },
           ],
-          sceneDuration - 720,
+          captionEnterDuration,
         )
       }
       settle()
@@ -222,7 +223,7 @@ watch(
         await play(
           [snapshot],
           [{ opacity: 1 }, { opacity: 0.55 }, { opacity: 1 }],
-          sceneDuration / snapshots.length,
+          captionEnterDuration,
         )
       }
     } else if (changingLabels.length) {
@@ -237,7 +238,7 @@ watch(
           { opacity: 0, transform: 'translateY(-12px)' },
           { opacity: 1, transform: 'translateY(0)' },
         ],
-        sceneDuration - captionExitDuration,
+        captionEnterDuration,
       )
     } else if (fileGraphic.value) {
       await play(

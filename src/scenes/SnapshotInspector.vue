@@ -21,10 +21,11 @@ const inspected = computed(
           :key="commit.id"
           type="button"
           class="control snapshot-control"
+          :aria-label="`Inspect ${commit.id}`"
           :aria-pressed="commit.id === inspected?.id"
           @click="selectedId = commit.id"
         >
-          Inspect {{ commit.id }}
+          {{ commit.id }}
         </button>
       </div>
       <div v-if="inspected" class="snapshot-contents" aria-live="polite">
