@@ -1,14 +1,5 @@
-import type { Lesson, RepositoryState } from './lesson'
-
-function freeze<T>(value: T): T {
-  if (value && typeof value === 'object') {
-    Object.values(value).forEach(freeze)
-    Object.freeze(value)
-  }
-  return value
-}
-
-const notes = { name: 'notes.txt', contents: 'A little less magic.\n' }
+import { freezeLesson, type RepositoryState } from './lesson'
+import { originalNote as notes } from './notes'
 
 const folder: RepositoryState = {
   initialized: false,
@@ -24,12 +15,17 @@ const initialized: RepositoryState = {
   working: [{ ...notes, status: 'untracked' }],
 }
 
-export const startRepository: Lesson = freeze({
+export const startRepository = freezeLesson({
   slug: 'start-a-repository',
   title: 'Start a repository',
   duration: '~ 2 min',
   difficulty: 'Beginner',
   topic: 'Local fundamentals',
+  mentalModel: [
+    'Working files stay in place.',
+    'The staging area starts empty.',
+    'History starts with zero commits.',
+  ],
   steps: [
     {
       label: 'The folder',
@@ -67,5 +63,3 @@ export const startRepository: Lesson = freeze({
     },
   ],
 })
-
-export const lessons: readonly Lesson[] = Object.freeze([startRepository])

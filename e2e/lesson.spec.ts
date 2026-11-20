@@ -22,7 +22,7 @@ test('every step is independently readable and navigable', async ({ page }) => {
       enabled: index !== 2,
     })
   }
-  await expect(page.getByRole('button', { name: 'Next lesson' })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Next lesson: Edit and inspect' })).toBeVisible()
   await page.getByRole('button', { name: 'Lessons', exact: true }).click()
   const list = page.getByRole('navigation', { name: 'Lessons' })
   await expect(list.getByText('A little less magic.')).toHaveCount(0)

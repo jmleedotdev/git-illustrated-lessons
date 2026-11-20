@@ -12,7 +12,6 @@ defineSlots<{
     replay: () => void
     reducedMotion: boolean
   }): unknown
-  'mental-model'(): unknown
 }>()
 const player = createPlayer(props.lessons)
 const { lesson, step, location, presentation, canBack, canNext, nextLesson, reducedMotion } = player
@@ -20,6 +19,7 @@ const listOpen = ref(false)
 const toggle = ref<HTMLButtonElement>()
 const lessonList = ref<HTMLElement>()
 const guideContent = ref<HTMLElement>()
+const lessonHeading = ref<HTMLHeadingElement>()
 const navigation = ref<HTMLElement>()
 let restoring = false
 function formatLessonNumber(index: number) {
@@ -35,11 +35,21 @@ function closeLessons() {
   listOpen.value = false
   void nextTick(() => toggle.value?.focus())
 }
+function modifiedClick(event: MouseEvent) {
+  return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
+}
 function openLesson(event: MouseEvent, slug: string) {
-  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+  if (modifiedClick(event)) return
   event.preventDefault()
   player.openLesson(slug)
   closeLessons()
+}
+async function openNextLesson(event: MouseEvent) {
+  if (modifiedClick(event)) return
+  event.preventDefault()
+  player.openNextLesson()
+  await nextTick()
+  lessonHeading.value?.focus()
 }
 async function toggleLessons() {
   if (listOpen.value) return closeLessons()
@@ -161,7 +171,7 @@ onUnmounted(() => {
               <li class="lesson-pill">{{ lesson.steps.length }} steps</li>
             </ul>
           </div>
-          <h1 id="lesson-title">{{ lesson.title }}</h1>
+          <h1 id="lesson-title" ref="lessonHeading" tabindex="-1">{{ lesson.title }}</h1>
         </div>
         <slot
           name="scene"
@@ -258,23 +268,23 @@ onUnmounted(() => {
               Next <span aria-hidden="true">→</span>
             </button>
           </nav>
-          <button
+          <a
             v-if="!canNext && nextLesson"
-            type="button"
-            class="control"
-            @click="player.openNextLesson"
+            :href="`#/${nextLesson.slug}/1`"
+            class="control mt-2"
+            @click="openNextLesson"
           >
             Next lesson: {{ nextLesson.title }}
-          </button>
+          </a>
           <small class="keyboard-hint">Select a step to jump · ← → to navigate</small>
         </section>
-        <aside
-          v-if="$slots['mental-model']"
-          class="mental-model"
-          aria-labelledby="mental-model-title"
-        >
+        <aside class="mental-model" aria-labelledby="mental-model-title">
           <h2 id="mental-model-title" class="eyebrow">The mental model</h2>
-          <slot name="mental-model" />
+          <ul>
+            <li v-for="idea in lesson.mentalModel" :key="idea">
+              <span aria-hidden="true">✓</span> <InlineText :text="idea" />
+            </li>
+          </ul>
         </aside>
       </div>
     </main>

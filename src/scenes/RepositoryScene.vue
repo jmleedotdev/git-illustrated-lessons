@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, shallowRef, ref, watch } from 'vue'
-import type { RepositoryState } from '../lessons/lesson'
+import type { FileContents, RepositoryState } from '../lessons/lesson'
 import type { Presentation } from '../player/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import FoldedPage from './FoldedPage.vue'
@@ -14,12 +14,17 @@ const props = defineProps<{
 defineEmits<{ replay: [] }>()
 const stage = ref<HTMLElement>()
 const fileGraphic = ref<SVGGElement>()
+const copyGraphic = ref<SVGGElement>()
+const copy = shallowRef<FileContents>()
 const before = shallowRef<RepositoryState>()
+const zoneGap = 310
+const pagePosition = (zone: number) => `translate(${27 + zone * zoneGap},93)`
 const busy = ref(false)
 const inspectionPaused = ref(false)
 const inspecting = computed(() => props.presentation.kind === 'inspect')
 const state = computed(() => before.value ?? props.presentation.state)
 const file = computed(() => state.value.working[0])
+const stagedFile = computed(() => state.value.staged[0])
 const zones = computed(() => describeZones(state.value))
 
 function gitStatus(state: RepositoryState) {
@@ -27,27 +32,39 @@ function gitStatus(state: RepositoryState) {
 }
 
 function describeZones(state: RepositoryState) {
-  const [file] = state.working
+  const [working] = state.working
+  const [staged] = state.staged
+  const status = { existing: 'Existing file', untracked: 'Untracked', tracked: 'Tracked' }
   return [
     {
       name: 'Working directory',
       fill: 'var(--color-peach)',
-      fileName: file?.name,
-      caption: file?.status === 'untracked' ? 'Untracked' : 'Existing file',
+      file: working,
+      caption: working ? versionCaption(working.version, status[working.status]) : 'Empty',
     },
     {
       name: 'Staging area',
       fill: 'var(--color-slate)',
-      caption: state.initialized ? 'Empty' : 'Not set up yet',
+      file: staged,
+      caption: staged
+        ? versionCaption(staged.version, 'Staged')
+        : state.initialized
+          ? 'Empty'
+          : 'Not set up yet',
     },
     { name: 'Recorded history', fill: 'var(--color-terracotta)', caption: 'No commits' },
   ]
+}
+
+function versionCaption(version: string | undefined, status: string) {
+  return version ? `Version ${version} · ${status}` : status
 }
 
 watch(
   () => props.presentation,
   async ({ transition }, _, onCleanup) => {
     before.value = undefined
+    copy.value = undefined
     busy.value = false
     inspectionPaused.value = false
     if (!transition || inspecting.value) return
@@ -59,6 +76,13 @@ watch(
       animations.forEach((animation) => animation.cancel())
     })
 
+    function settle() {
+      if (cancelled) return
+      copy.value = undefined
+      before.value = undefined
+      busy.value = false
+    }
+
     async function play(targets: Element[], frames: Keyframe[], duration: number) {
       animations = targets
         .filter((target) => typeof target.animate === 'function')
@@ -68,8 +92,24 @@ watch(
 
     busy.value = true
     before.value = transition.before
+    if (transition.kind === 'stage') copy.value = transition.after.staged[0]
     await nextTick()
     if (cancelled) return
+
+    if (copyGraphic.value) {
+      await play(
+        [copyGraphic.value],
+        [
+          { opacity: 0, transform: 'translate(0, 0)' },
+          { opacity: 1, transform: `translate(${zoneGap * 0.25}px, -46px)`, offset: 0.25 },
+          { opacity: 1, transform: `translate(${zoneGap * 0.75}px, -46px)`, offset: 0.75 },
+          { opacity: 1, transform: `translate(${zoneGap}px, 0)` },
+        ],
+        920,
+      )
+      settle()
+      return
+    }
 
     const afterZones = describeZones(transition.after)
     const changedCaptions = zones.value
@@ -80,7 +120,11 @@ watch(
       stage.value?.querySelectorAll('[data-scene-caption]') ?? [],
     ).filter((label) => changedCaptions.includes(label.getAttribute('data-scene-caption') ?? ''))
 
-    if (changingLabels.length) {
+    if (transition.kind === 'edit' && fileGraphic.value) changingLabels.push(fileGraphic.value)
+    if (transition.kind === 'status') {
+      const statusLabels = Array.from(stage.value?.querySelectorAll('[data-scene-caption]') ?? [])
+      await play(statusLabels, [{ opacity: 1 }, { opacity: 0.45 }, { opacity: 1 }], 650)
+    } else if (changingLabels.length) {
       await play(changingLabels, [{ opacity: 1 }, { opacity: 0.15 }], 430)
       if (cancelled) return
       before.value = undefined
@@ -105,10 +149,7 @@ watch(
       )
     }
 
-    if (!cancelled) {
-      before.value = undefined
-      busy.value = false
-    }
+    settle()
   },
   { flush: 'post' },
 )
@@ -183,18 +224,18 @@ watch(
       <g
         v-for="(zone, index) in zones"
         :key="zone.name"
-        :transform="`translate(${40 + index * 310},115)`"
+        :transform="`translate(${40 + index * zoneGap},115)`"
       >
         <text x="130" y="0" class="zone-label" text-anchor="middle">
           {{ zone.name.toUpperCase() }}
         </text>
         <ScenePlatform :fill="zone.fill" />
-        <text v-if="zone.fileName" x="132" y="315" class="zone-file" text-anchor="middle">
-          {{ zone.fileName }}
+        <text v-if="zone.file" x="132" y="315" class="zone-file" text-anchor="middle">
+          {{ zone.file.name }}
         </text>
         <text
           x="132"
-          :y="zone.fileName ? 339 : 315"
+          :y="zone.file ? 339 : 315"
           class="zone-caption"
           :data-scene-caption="zone.name"
           text-anchor="middle"
@@ -202,7 +243,7 @@ watch(
           {{ zone.caption }}
         </text>
       </g>
-      <g v-if="file" transform="translate(27,93)">
+      <g v-if="file" :transform="pagePosition(0)">
         <g
           ref="fileGraphic"
           :class="{
@@ -210,7 +251,13 @@ watch(
             'inspection-paused': inspectionPaused,
           }"
         >
-          <FoldedPage />
+          <FoldedPage :version="file.version" />
+        </g>
+      </g>
+      <FoldedPage v-if="stagedFile" :version="stagedFile.version" :transform="pagePosition(1)" />
+      <g v-if="copy" :transform="pagePosition(0)" aria-hidden="true">
+        <g ref="copyGraphic">
+          <FoldedPage :version="copy.version" />
         </g>
       </g>
     </svg>

@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest'
 import { createPlayer } from '../player/createPlayer'
-import { lessons } from '../lessons/startRepository'
+import { lessons } from '../lessons/catalog'
 
 it('restores and normalizes hash locations without requesting motion', () => {
   const player = createPlayer(lessons)
@@ -45,7 +45,7 @@ it('requests motion for Back, Next, and Replay within a lesson', () => {
   player.back()
   expect(player.location.value.step).toBe(2)
   expect(player.presentation.value.transition?.kind).toBe('initialize')
-  expect(player.nextLesson.value).toBeNull()
+  expect(player.nextLesson.value?.slug).toBe('edit-and-inspect')
 })
 
 it('settles active playback when reduced motion changes and does not animate Replay', () => {

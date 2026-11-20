@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { lessons } from './lessons/startRepository'
+import { lessons } from './lessons/catalog'
 import RepositoryScene from './scenes/RepositoryScene.vue'
 import LessonShell from './ui/LessonShell.vue'
 </script>
@@ -13,13 +13,6 @@ import LessonShell from './ui/LessonShell.vue'
         :reduced-motion="reducedMotion"
         @replay="replay"
       />
-    </template>
-    <template #mental-model>
-      <ul>
-        <li><span aria-hidden="true">✓</span> Working files stay in place.</li>
-        <li><span aria-hidden="true">✓</span> The staging area starts empty.</li>
-        <li><span aria-hidden="true">✓</span> History starts with zero commits.</li>
-      </ul>
     </template>
   </LessonShell>
 </template>
