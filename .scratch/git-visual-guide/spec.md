@@ -218,10 +218,10 @@ The prototype calls those successive notes.txt contents B, C, and D. Such diagra
 
 - Begin with Vue and small CSS/SVG transitions; add no animation library without demonstrated need. Motion must explain a specific state change rather than rely solely on whole-scene fades.
 - Suitable explanatory movements include copying selected contents into staging without removing the working file, creating a commit, moving branch/HEAD markers, and transferring needed committed history during push. Configuring origin must not animate a history transfer.
-- The lesson’s Back and Next controls play the authored transition for the destination step. Initial load, direct numbered-step selection, direct lesson entry, and browser-history navigation show the completed destination state immediately.
+- The lesson’s Back, Next, and Next lesson controls play the authored transition for the destination step. On initial load, the course’s opening step also plays when entered at the root or its exact hash. Other deep links, selection from Lessons or numbered steps, and browser-history navigation show the completed destination state immediately.
 - Replay repeats the current step's defined before-to-after transition without navigating or advancing afterward. It works even when the step was reached directly and no previous animation ran.
 - Navigation can interrupt motion without waiting. Cancel superseded transitions and settle correctly at the new destination; delayed callbacks from old transitions must not overwrite the current selection or scene.
-- Neither normal nor reduced-motion playback auto-advances. Detailed timing and choreography are tuned during implementation and reviewed at the visual gates; prototype fades are not final animation approval.
+- Neither normal nor reduced-motion playback auto-advances. Use the existing initialization caption transition (1.03 seconds total) as the shared duration for the finite repository-scene animations. This does not change the separate pauseable inspection loop. Choreography is reviewed at the visual gates; prototype fades are not final animation approval.
 
 ### 11. Responsive layout, zoom, and accessibility
 

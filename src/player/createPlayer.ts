@@ -69,7 +69,7 @@ export function createPlayer(catalog: readonly Lesson[]) {
       if (canNext.value) go(lesson.value.slug, location.value.step + 1, true)
     },
     openNextLesson: () => {
-      if (!canNext.value && nextLesson.value) go(nextLesson.value.slug, 1)
+      if (!canNext.value && nextLesson.value) go(nextLesson.value.slug, 1, true)
     },
     replay: () => {
       if (!reducedMotion.value) present(true)

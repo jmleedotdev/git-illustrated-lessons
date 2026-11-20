@@ -11,6 +11,44 @@ const stagingSteps = [
   ['Alice makes another edit.', 'Version C · Tracked', 'Version B · Staged'],
 ] as const
 
+test('plays the opening step at launch and when choosing Next lesson', async ({ page }) => {
+  const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  await page.goto('/')
+  await expect(scene).toHaveAttribute('aria-busy', 'true')
+  await expect(page).toHaveURL(/#\/start-a-repository\/1$/)
+  await page.reload()
+  await expect(scene).toHaveAttribute('aria-busy', 'true')
+  await page.goto('/#/start-a-repository/3')
+  await page.getByRole('link', { name: 'Next lesson: Edit and inspect' }).click()
+  await expect(page).toHaveURL(/#\/edit-and-inspect\/1$/)
+  await expect(scene).toHaveAttribute('aria-busy', 'true')
+  await page.goBack()
+  await page.goForward()
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+})
+
+test('paces the Edit and inspect status pulse like the initialization caption transition', async ({
+  page,
+}) => {
+  const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  await page.goto('/#/edit-and-inspect/1')
+  await page.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect(scene).toHaveAttribute('aria-busy', 'true')
+  await expect
+    .poll(() =>
+      scene.evaluate(
+        (figure) =>
+          figure.getAnimations({ subtree: true })[0]?.effect?.getComputedTiming().duration,
+      ),
+    )
+    .toBe(1030)
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await expect(page).toHaveURL(/#\/edit-and-inspect\/2$/)
+})
+
 test('opens every editing and staging step in its completed state', async ({ page }) => {
   const illustration = page.getByRole('figure', { name: 'Repository illustration' })
   const scene = page.getByRole('img', { name: sceneName })

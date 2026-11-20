@@ -91,6 +91,7 @@ function revealFocusedControl(event: FocusEvent) {
     }
   })
 }
+const playsOpeningStep = !window.location.hash || window.location.hash === player.hash.value
 restore()
 watch(
   player.hash,
@@ -109,6 +110,7 @@ function motionChanged() {
 onMounted(() => {
   media = window.matchMedia('(prefers-reduced-motion: reduce)')
   motionChanged()
+  if (playsOpeningStep) player.replay()
   window.addEventListener('hashchange', restore)
   window.addEventListener('popstate', restore)
   window.addEventListener('keydown', keyboard)

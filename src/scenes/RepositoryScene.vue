@@ -17,6 +17,8 @@ const fileGraphic = ref<SVGGElement>()
 const copyGraphic = ref<SVGGElement>()
 const copy = shallowRef<FileContents>()
 const before = shallowRef<RepositoryState>()
+const sceneDuration = 1030
+const captionExitDuration = 430
 const zoneGap = 310
 const pagePosition = (zone: number) => `translate(${27 + zone * zoneGap},93)`
 const busy = ref(false)
@@ -83,7 +85,7 @@ watch(
       busy.value = false
     }
 
-    async function play(targets: Element[], frames: Keyframe[], duration: number) {
+    async function play(targets: Element[], frames: Keyframe[], duration = sceneDuration) {
       animations = targets
         .filter((target) => typeof target.animate === 'function')
         .map((target) => target.animate(frames, { duration, easing: 'ease-in-out' }))
@@ -105,7 +107,6 @@ watch(
           { opacity: 1, transform: `translate(${zoneGap * 0.75}px, -46px)`, offset: 0.75 },
           { opacity: 1, transform: `translate(${zoneGap}px, 0)` },
         ],
-        920,
       )
       settle()
       return
@@ -123,9 +124,9 @@ watch(
     if (transition.kind === 'edit' && fileGraphic.value) changingLabels.push(fileGraphic.value)
     if (transition.kind === 'status') {
       const statusLabels = Array.from(stage.value?.querySelectorAll('[data-scene-caption]') ?? [])
-      await play(statusLabels, [{ opacity: 1 }, { opacity: 0.45 }, { opacity: 1 }], 650)
+      await play(statusLabels, [{ opacity: 1 }, { opacity: 0.45 }, { opacity: 1 }])
     } else if (changingLabels.length) {
-      await play(changingLabels, [{ opacity: 1 }, { opacity: 0.15 }], 430)
+      await play(changingLabels, [{ opacity: 1 }, { opacity: 0.15 }], captionExitDuration)
       if (cancelled) return
       before.value = undefined
       await nextTick()
@@ -136,7 +137,7 @@ watch(
           { opacity: 0, transform: 'translateY(-12px)' },
           { opacity: 1, transform: 'translateY(0)' },
         ],
-        600,
+        sceneDuration - captionExitDuration,
       )
     } else if (fileGraphic.value) {
       await play(
@@ -145,7 +146,6 @@ watch(
           { opacity: 0.25, transform: 'translateY(18px)' },
           { opacity: 1, transform: 'translateY(0)' },
         ],
-        650,
       )
     }
 
