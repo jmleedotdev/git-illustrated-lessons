@@ -90,6 +90,8 @@ function keyboard(event: KeyboardEvent) {
   }
 }
 function revealFocusedControl(event: FocusEvent) {
+  // Tabbing out of the overlay should expose the new target, not pull focus back.
+  listOpen.value = false
   const target = event.target
   const bar = navigation.value
   if (!(target instanceof HTMLElement) || !bar || bar.contains(target)) return
