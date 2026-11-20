@@ -114,3 +114,68 @@ export const connectLocalAndRemote = freezeLesson({
     },
   ],
 })
+
+const published: RepositoryState = {
+  ...local,
+  remoteSetup: {
+    hosted: {
+      ...emptyHosted,
+      branches: { main: 'c5' },
+      // Both ancestry paths from c5 are reachable, so all five authored commits are needed.
+      commits: local.commits,
+      files: mergedFiles,
+    },
+    origin: exampleAddress,
+    upstream: 'origin/main',
+  },
+}
+
+const originDiagram = 'The dashed `origin` connection marks the GitHub address stored locally.'
+const publicationDiagram =
+  'The push arrow points to GitHub, where `main` points to `c5` and all five commits, `c1` through `c5`, are present. There is no hosted `ideas` branch. Local `main` now has `origin/main` as its upstream.'
+const publishedDiagram = `${localDiagram} ${originDiagram} ${publicationDiagram}`
+
+export const pushTheWork = freezeLesson({
+  slug: 'push-the-work',
+  title: 'Push the work',
+  duration: '~ 3 min',
+  difficulty: 'Beginner',
+  topic: 'GitHub',
+  mentalModel: [
+    'Push publishes committed history and updates a branch on the remote repository.',
+    'The hosted files are a recorded snapshot, not a live view of Alice’s working directory.',
+  ],
+  steps: [
+    {
+      label: 'Ready to push',
+      title: 'Git knows where to send the history.',
+      story: `Alice’s working directory and staging area match the merge commit on \`main\`. Bob checks GitHub: \`git-notes\` is still empty, even though Alice has configured \`origin\`. ${prerequisites}`,
+      idea: 'Knowing the address is not the same as publishing history.',
+      change: 'No history has been sent. GitHub is empty, and local `main` has no upstream.',
+      diagram: `${localDiagram} ${originDiagram} ${emptyDiagram} No upstream is configured.`,
+      transition: { kind: 'inspect-remote', before: connected, after: connected },
+    },
+    {
+      label: 'Push main',
+      title: 'Alice sends the history behind main.',
+      action: { kind: 'command', text: 'git push -u origin main' },
+      story:
+        'Git sends the five commits reachable from `main`, including the work merged from `ideas`. GitHub’s `main` now points to `c5`, but Bob sees no separate `ideas` branch on GitHub. Alice keeps both branches locally.',
+      idea: 'Push sends committed history, not uncommitted working-directory or staged contents.',
+      change:
+        'GitHub’s `main` points to `c5`. With `-u`, Git sets local `main`’s upstream to `origin/main`.',
+      diagram: publishedDiagram,
+      transition: { kind: 'push', before: connected, after: published },
+    },
+    {
+      label: 'Inspect files',
+      title: 'Bob looks at the recorded files.',
+      story:
+        'On GitHub, Bob sees `notes.txt` and `ideas.txt` as recorded in `c5`. That is the latest committed snapshot on hosted `main`, not Alice’s live working directory. If she edits or stages files later, those changes won’t show up on GitHub until she commits and pushes again.',
+      idea: '`origin/main` is the default destination for later pushes from `main`, not automatic synchronization.',
+      change: 'Nothing changes when Bob looks. GitHub still shows the files from `c5`.',
+      diagram: publishedDiagram,
+      transition: { kind: 'inspect-remote', before: published, after: published },
+    },
+  ],
+})

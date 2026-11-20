@@ -87,3 +87,39 @@ it('opens the empty hosted repository independently and stores only the origin a
   expect(player.presentation.value.transition).toBeNull()
   expect(player.presentation.value.state).toEqual(configured)
 })
+
+it('publishes main’s committed ancestry and sets its upstream without publishing a separate ideas branch', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/push-the-work/1')
+  expect(player.lesson.value.title).toBe('Push the work')
+  const opening = player.presentation.value.state
+  expectCleanLocalHistory(opening)
+  expect(opening.remoteSetup).toEqual({
+    hosted: emptyHosted,
+    origin: 'https://github.com/alice-example/git-notes.git',
+    upstream: null,
+  })
+
+  player.next()
+  const publication = player.presentation.value
+  expect(publication.transition?.before).toEqual(opening)
+  expectCleanLocalHistory(publication.state)
+  expect(publication.state.remoteSetup).toEqual({
+    hosted: {
+      ...emptyHosted,
+      branches: { main: 'c5' },
+      commits: opening.commits,
+      files: [notesD, ideas],
+    },
+    origin: opening.remoteSetup?.origin,
+    upstream: 'origin/main',
+  })
+  expect(player.step.value.action?.text).toBe('git push -u origin main')
+  expect(player.step.value.idea).toMatch(/not uncommitted working-directory or staged contents/)
+
+  player.restore('#/push-the-work/3')
+  expect(player.presentation.value.state).toEqual(publication.state)
+  expect(player.step.value.story).toMatch(/`notes\.txt` and `ideas\.txt`.*`c5`/)
+  expect(player.canNext.value).toBe(false)
+  expect(player.nextLesson.value).toBeNull()
+})

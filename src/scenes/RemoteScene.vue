@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watchPostEffect } from 'vue'
-import { checkoutTip } from '../lessons/lesson'
+import { checkoutTip, type Commit } from '../lessons/lesson'
 import type { Presentation } from '../player/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import CommitSphere from './CommitSphere.vue'
@@ -19,6 +19,8 @@ const tip = computed(() => checkoutTip(state.value))
 const head = computed(() => `HEAD → ${state.value.head} → ${tip.value}`)
 
 // Centers and panel geometry from the revised A remote study.
+const localPanelX = 25
+const githubPanelX = 495
 const positions = [
   { x: 50, y: 170 },
   { x: 120, y: 170 },
@@ -27,16 +29,16 @@ const positions = [
   { x: 315, y: 170 },
 ]
 const sphereRadius = 23
-const nodes = computed(() =>
-  state.value.commits.map((commit, index) => ({
-    commit,
-    ...positions[index]!,
-  })),
-)
-const links = computed(() =>
-  nodes.value.flatMap((child) =>
+
+function diagramHistory(
+  commits: readonly Commit[],
+  branchTips: Readonly<Record<string, string>>,
+  currentBranch: string | null,
+) {
+  const nodes = commits.map((commit, index) => ({ commit, ...positions[index]! }))
+  const links = nodes.flatMap((child) =>
     child.commit.parents.map((id) => {
-      const parent = nodes.value.find(({ commit }) => commit.id === id)!
+      const parent = nodes.find(({ commit }) => commit.id === id)!
       const dx = parent.x - child.x
       const dy = parent.y - child.y
       const length = Math.hypot(dx, dy)
@@ -45,22 +47,45 @@ const links = computed(() =>
         path: `M ${child.x + (dx / length) * 25} ${child.y + (dy / length) * 25} L ${parent.x - (dx / length) * 26} ${parent.y - (dy / length) * 26}`,
       }
     }),
-  ),
-)
-const branches = computed(() =>
-  Object.entries(state.value.branches ?? {}).map(([name, id]) => {
-    const { x, y } = nodes.value.find(({ commit }) => commit.id === id)!
-    const current = name === state.value.head
+  )
+  const branches = Object.entries(branchTips).map(([name, id]) => {
+    const { x, y } = nodes.find(({ commit }) => commit.id === id)!
+    const current = name === currentBranch
+    const main = name === 'main'
     return {
       name,
       x,
-      y: y - (current ? 61 : 52),
-      stem: current ? 11 : 3,
-      width: current ? 90 : 94,
+      y: y - (main ? 61 : 52),
+      stem: main ? 11 : 3,
+      width: main ? 90 : 94,
       current,
     }
-  }),
-)
+  })
+  return { nodes, links, branches }
+}
+
+const hostedMain = computed(() => hosted.value?.branches.main)
+const hostedRange = computed(() => {
+  const commits = hosted.value?.commits ?? []
+  if (commits.length < 2) return commits[0]?.id
+  return `${commits[0]!.id}–${commits[commits.length - 1]!.id}`
+})
+const panels = computed(() => [
+  {
+    title: 'ALICE’S COMPUTER',
+    x: localPanelX,
+    local: true,
+    tip: tip.value,
+    ...diagramHistory(state.value.commits, state.value.branches ?? {}, state.value.head),
+  },
+  {
+    title: 'GITHUB · HOSTED REPOSITORY',
+    x: githubPanelX,
+    local: false,
+    tip: hostedMain.value,
+    ...diagramHistory(hosted.value?.commits ?? [], hosted.value?.branches ?? {}, null),
+  },
+])
 
 const replayUnavailable = computed(() => {
   if (props.reducedMotion) return 'Unavailable with reduced motion.'
@@ -73,12 +98,41 @@ watchPostEffect((onCleanup) => {
   const figure = stage.value
   busy.value = false
   if (!transition || !figure || replayUnavailable.value) return
-  const target = transition.kind === 'add-origin' ? 'origin' : 'hosted-name'
-  const frames = [{ opacity: 0 }, { opacity: 1 }]
-  // Reveal only the changed identifier or connection, never animate the commits.
-  const animations = Array.from(figure.querySelectorAll(`[data-remote-part="${target}"]`))
-    .filter((element) => typeof element.animate === 'function')
-    .map((element) => element.animate(frames, { duration: 1030, easing: 'ease-in-out' }))
+  const sceneDuration = 1030
+  const travelDuration = 820
+  const reveal = [{ opacity: 0 }, { opacity: 1 }]
+  const animate = (part: string, frames: Keyframe[], duration = sceneDuration, delay = 0) =>
+    Array.from(figure.querySelectorAll(`[data-remote-part="${part}"]`))
+      .filter((element) => typeof element.animate === 'function')
+      .map((element) =>
+        element.animate(frames, { duration, delay, fill: 'backwards', easing: 'ease-in-out' }),
+      )
+  // The local graph stays still. Hosted copies travel first; their links and main appear on arrival.
+  const animations =
+    transition.kind === 'push'
+      ? [
+          ...animate('push', reveal, 250),
+          ...animate(
+            'published-commits',
+            [
+              { opacity: 0, transform: `translateX(${localPanelX - githubPanelX}px)` },
+              { opacity: 1, offset: 0.23 },
+              { opacity: 1, transform: 'translateX(0)' },
+            ],
+            travelDuration,
+          ),
+          ...animate('published-refs', reveal, sceneDuration - travelDuration, travelDuration),
+          ...animate(
+            'published-summary',
+            [
+              { opacity: 0, transform: 'translateY(-12px)' },
+              { opacity: 1, transform: 'none' },
+            ],
+            330,
+            700,
+          ),
+        ]
+      : animate(transition.kind === 'add-origin' ? 'origin' : 'hosted-name', reveal)
   if (!animations.length) return
   busy.value = true
   let cancelled = false
@@ -104,7 +158,7 @@ watchPostEffect((onCleanup) => {
       <span class="lesson-pill">TWO PLACES, ONE HISTORY</span>
       <button
         type="button"
-        class="stage-animation-control ml-auto"
+        class="stage-animation-control remote-replay ml-auto"
         :disabled="!!replayUnavailable"
         :aria-describedby="replayUnavailable ? 'remote-motion-reason' : undefined"
         @click="$emit('replay')"
@@ -143,17 +197,24 @@ watchPostEffect((onCleanup) => {
         >
           <path d="M0 0L10 5 0 10" fill="none" class="stroke-muted" stroke-width="2" />
         </marker>
+        <marker
+          id="remote-transfer"
+          viewBox="0 0 10 10"
+          refX="9"
+          refY="5"
+          markerWidth="7"
+          markerHeight="7"
+          orient="auto"
+        >
+          <path d="M0 0L10 5 0 10" fill="none" class="stroke-focus" stroke-width="2" />
+        </marker>
       </defs>
-      <g
-        v-for="panel in ['local', 'github']"
-        :key="panel"
-        :transform="`translate(${panel === 'local' ? 25 : 495},30)`"
-      >
+      <g v-for="panel in panels" :key="panel.title" :transform="`translate(${panel.x},30)`">
         <rect
           width="380"
           height="330"
           rx="18"
-          :class="panel === 'local' ? 'fill-peach' : 'fill-slate'"
+          :class="panel.local ? 'fill-peach' : 'fill-slate'"
           fill-opacity=".45"
         />
         <rect x="10" y="70" width="360" height="245" fill="url(#remote-grid)" />
@@ -168,13 +229,16 @@ watchPostEffect((onCleanup) => {
           stroke-linecap="round"
         />
         <text x="18" y="30" font-size="14" class="font-bold">
-          {{ panel === 'local' ? 'ALICE’S COMPUTER' : 'GITHUB · HOSTED REPOSITORY' }}
+          {{ panel.title }}
         </text>
-        <template v-if="panel === 'local'">
-          <text x="18" y="54" font-size="13">{{ head }}</text>
-          <g transform="translate(10,40)">
+        <text v-if="panel.local" x="18" y="54" font-size="13">{{ head }}</text>
+        <text v-else-if="hosted" data-remote-part="hosted-name" x="18" y="54" font-size="13">
+          {{ hosted.owner }} / {{ hosted.name }}
+        </text>
+        <g v-if="panel.nodes.length" transform="translate(10,40)">
+          <g :data-remote-part="panel.local ? undefined : 'published-refs'">
             <path
-              v-for="link in links"
+              v-for="link in panel.links"
               :key="link.key"
               :d="link.path"
               fill="none"
@@ -182,16 +246,20 @@ watchPostEffect((onCleanup) => {
               stroke-width="2"
               marker-end="url(#remote-parent)"
             />
+          </g>
+          <g :data-remote-part="panel.local ? undefined : 'published-commits'">
             <CommitSphere
-              v-for="{ commit, x, y } in nodes"
+              v-for="{ commit, x, y } in panel.nodes"
               :key="commit.id"
               :commit="commit"
-              :current="commit.id === tip"
+              :current="commit.id === panel.tip"
               compact
               :transform="`translate(${x},${y}) scale(${sphereRadius / 42})`"
             />
+          </g>
+          <g :data-remote-part="panel.local ? undefined : 'published-refs'">
             <g
-              v-for="branch in branches"
+              v-for="branch in panel.branches"
               :key="branch.name"
               :transform="`translate(${branch.x},${branch.y})`"
             >
@@ -209,10 +277,7 @@ watchPostEffect((onCleanup) => {
               <path :d="`M0 26v${branch.stem}`" class="stroke-charcoal" fill="none" />
             </g>
           </g>
-        </template>
-        <text v-else-if="hosted" data-remote-part="hosted-name" x="18" y="54" font-size="13">
-          {{ hosted.owner }} / {{ hosted.name }}
-        </text>
+        </g>
       </g>
       <g v-if="origin" data-remote-part="origin">
         <path
@@ -226,6 +291,17 @@ watchPostEffect((onCleanup) => {
           origin
         </text>
       </g>
+      <g v-if="hostedMain" data-remote-part="push">
+        <path
+          d="M405 285H490"
+          class="stroke-focus"
+          stroke-width="3"
+          marker-end="url(#remote-transfer)"
+        />
+        <text x="450" y="312" text-anchor="middle" font-size="13" class="fill-idea-ink font-bold">
+          push
+        </text>
+      </g>
     </svg>
     <div class="remote-compact story-text">
       <p>
@@ -233,12 +309,18 @@ watchPostEffect((onCleanup) => {
         →
         {{ state.branches?.ideas }}
       </p>
-      <p v-if="origin" data-remote-part="origin" class="remote-compact-link">
-        <InlineText text="`origin` names the GitHub address." />
+      <p v-if="origin" class="remote-compact-link">
+        <span data-remote-part="origin"
+          ><InlineText text="`origin` names the GitHub address."
+        /></span>
+        <span v-if="hostedMain" data-remote-part="push"><br />Push sent main’s history.</span>
       </p>
       <p>
         <strong>GitHub</strong
         ><span v-if="hosted" data-remote-part="hosted-name"> / {{ hosted.name }}</span>
+        <span v-if="hostedMain" class="block" data-remote-part="published-summary">
+          main → {{ hostedMain }} · {{ hostedRange }}
+        </span>
       </p>
     </div>
     <figcaption id="remote-scene-note" class="scene-note">
@@ -249,6 +331,17 @@ watchPostEffect((onCleanup) => {
 </template>
 
 <style scoped>
+@media (width > 1100px) and (height > 760px) {
+  /* Keep the SVG stationary when the Replay reason appears or disappears. */
+  .motion-reason {
+    flex-basis: auto;
+    margin-inline-start: auto;
+  }
+  .stage-top:has(.motion-reason) .remote-replay {
+    order: 1;
+    margin-inline-start: 0;
+  }
+}
 .remote-compact {
   display: none;
 }

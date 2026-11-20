@@ -66,6 +66,7 @@ export interface LessonStep {
       | 'inspect-remote'
       | 'create-remote'
       | 'add-origin'
+      | 'push'
     before: RepositoryState
     after: RepositoryState
   }>
