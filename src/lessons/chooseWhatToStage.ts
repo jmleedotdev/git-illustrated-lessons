@@ -1,5 +1,5 @@
 import { freezeLesson, type RepositoryState } from './lesson'
-import { editedNote } from './notes'
+import { editedNote, newerNote } from './notes'
 
 const untracked: RepositoryState = {
   initialized: true,
@@ -13,16 +13,9 @@ const staged: RepositoryState = {
   working: [{ ...editedNote, status: 'tracked' }],
   staged: [editedNote],
 }
-const editedAgain: RepositoryState = {
+export const editedAgain: RepositoryState = {
   ...staged,
-  working: [
-    {
-      ...editedNote,
-      contents: editedNote.contents + 'Only selected contents go in.\n',
-      version: 'C',
-      status: 'tracked',
-    },
-  ],
+  working: [{ ...newerNote, status: 'tracked' }],
 }
 
 export const chooseWhatToStage = freezeLesson({

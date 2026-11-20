@@ -4,6 +4,12 @@ export interface FileContents {
   readonly version?: string
 }
 
+export interface Commit {
+  readonly id: string
+  readonly parents: readonly string[]
+  readonly snapshot: readonly FileContents[]
+}
+
 export interface RepositoryState {
   readonly initialized: boolean
   readonly head: string | null
@@ -11,7 +17,9 @@ export interface RepositoryState {
     readonly status: 'existing' | 'untracked' | 'tracked'
   })[]
   readonly staged: readonly FileContents[]
-  readonly commits: readonly string[]
+  /** Commit the current branch points to, when it has one. */
+  readonly branchTip?: string
+  readonly commits: readonly Commit[]
 }
 
 export interface LessonStep {
@@ -23,7 +31,7 @@ export interface LessonStep {
   readonly idea: string
   readonly change: string
   readonly transition: Readonly<{
-    kind: 'open-folder' | 'initialize' | 'inspect' | 'edit' | 'status' | 'stage'
+    kind: 'open-folder' | 'initialize' | 'inspect' | 'edit' | 'status' | 'stage' | 'commit' | 'log'
     before: RepositoryState
     after: RepositoryState
   }>

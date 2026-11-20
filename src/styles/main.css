@@ -27,6 +27,8 @@
   --color-terracotta: #f3ad96;
   --color-commit-current: #f7b296;
   --color-commit-current-shade: #d87855;
+  --color-commit-past: #f3e3c9;
+  --color-commit-past-shade: #c4aa86;
   --color-ground-shadow: #cbbba6;
   --color-commit-highlight: #fff8eb;
   --color-hover: #f5b5a2;
@@ -316,7 +318,10 @@
 .repository-diagram .zone-label,
 .repository-diagram .zone-caption {
   fill: var(--color-muted);
-  font-size: 13px;
+  font-size: 16px;
+}
+.repository-diagram.has-history .zone-caption {
+  font-size: 18px;
 }
 .repository-diagram .zone-label {
   font-weight: 700;
@@ -327,8 +332,68 @@
   font-size: 17px;
   font-weight: 700;
 }
-.zone-summary {
+.zone-summary,
+.compact-history {
   display: none;
+}
+.moving-page {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.history-summary {
+  padding-inline: var(--spacing-inset);
+  border-top: var(--border-hairline) solid var(--color-stage-rule);
+}
+.history-legend {
+  padding-top: calc(2 * var(--spacing));
+  font-size: var(--text-label);
+  line-height: 1.4;
+}
+.snapshot-details:not([open]) .prerequisite-toggle {
+  margin-bottom: var(--spacing);
+}
+.snapshot-details section {
+  padding-bottom: var(--spacing-inset);
+}
+.snapshot-control[aria-pressed='true'],
+.current-branch {
+  background: var(--color-git);
+  font-weight: 700;
+}
+.snapshot-control[aria-pressed='true']:hover {
+  background: var(--color-hover);
+  box-shadow: var(--shadow-small);
+}
+.current-branch {
+  border: var(--border-hairline) solid var(--color-outline);
+  border-radius: var(--radius-control);
+  padding-inline: var(--spacing);
+}
+.snapshot-contents {
+  margin-top: calc(3 * var(--spacing));
+  font-size: var(--text-label);
+}
+.snapshot-contents pre {
+  margin-top: var(--spacing);
+  padding: calc(2 * var(--spacing));
+  border: var(--border-hairline) solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--color-sheet);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+@media (min-width: 801px) {
+  .lesson-layout:has(.snapshot-details[open]) {
+    height: auto;
+    grid-template-rows: minmax(calc(100dvh - var(--lesson-header-height) - 88px), auto);
+  }
+  .lesson-stage:has(.snapshot-details[open]) {
+    flex-basis: auto;
+    min-height: min-content;
+  }
+  .lesson-stage:has(.snapshot-details[open]) .repository-diagram {
+    min-height: 290px;
+  }
 }
 .scene-note {
   padding: 12px 15px;
@@ -520,6 +585,54 @@
     grid-template-columns: minmax(0, 1fr) 310px;
   }
 }
+@media (max-height: 900px) {
+  .lesson-layout:has(.has-history) .mental-model {
+    display: none;
+  }
+}
+@media (max-width: 1100px), (max-height: 850px) {
+  .repository-diagram.has-history text:not(.scene-git-status, .commit-id),
+  .repository-diagram.has-history .diagram-branch {
+    display: none;
+  }
+  .repository-diagram.has-history .scene-git-status {
+    font-size: 36px;
+  }
+  .repository-diagram.has-history .commit-id {
+    font-size: 38px;
+    transform: translateY(6px);
+  }
+  .zone-summary.with-history {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(2 * var(--spacing));
+    padding: 0 calc(2 * var(--spacing)) calc(2 * var(--spacing));
+    font-size: var(--text-label);
+    text-align: center;
+  }
+  .zone-summary.with-history dt {
+    font-weight: 700;
+  }
+  .compact-history {
+    display: grid;
+    gap: calc(2 * var(--spacing));
+    padding-top: calc(2 * var(--spacing));
+    font-size: var(--text-label);
+    line-height: 1.6;
+  }
+}
+@media (min-width: 801px) and (max-height: 760px) {
+  .lesson-layout:has(.has-history) {
+    height: auto;
+  }
+  .lesson-stage:has(.has-history) {
+    flex-basis: auto;
+  }
+  .repository-diagram.has-history {
+    flex: none;
+    height: clamp(230px, 32vw, 340px);
+  }
+}
 @media (max-width: 800px) {
   html {
     scroll-padding-bottom: calc(6rem + env(safe-area-inset-bottom));
@@ -575,10 +688,11 @@
     flex: none;
     height: auto;
   }
-  .repository-diagram text:not(.scene-git-status) {
+  .repository-diagram text:not(.scene-git-status, .commit-id) {
     display: none;
   }
-  .scene-git-status {
+  .scene-git-status,
+  .repository-diagram.has-history .scene-git-status {
     font-size: 46px;
   }
   .zone-summary {

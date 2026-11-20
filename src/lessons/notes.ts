@@ -5,3 +5,9 @@ export const editedNote = Object.freeze({
   contents: originalNote.contents + 'Git keeps a history.\n',
   version: 'B',
 })
+
+export const newerNote = Object.freeze({
+  ...editedNote,
+  contents: editedNote.contents + 'Only selected contents go in.\n',
+  version: 'C',
+})

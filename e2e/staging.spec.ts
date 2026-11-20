@@ -8,7 +8,7 @@ const editSteps = [
 const stagingSteps = [
   ['Alice reviews the note.', 'Version B · Untracked', 'Empty'],
   ['Alice selects version B.', 'Version B · Tracked', 'Version B · Staged'],
-  ['Alice makes another edit.', 'Version C · Tracked', 'Version B · Staged'],
+  ['Alice makes another edit.', 'Version C · Unstaged edit', 'Version B · Staged'],
 ] as const
 
 test('plays the opening step at launch and when choosing Next lesson', async ({ page }) => {
@@ -78,7 +78,7 @@ test('opens every editing and staging step in its completed state', async ({ pag
   await expect(scene).toHaveAccessibleDescription(
     /working directory.*version C.*staging area.*version B/i,
   )
-  await expect(page.getByRole('link', { name: /^Next:/ })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: 'Next: Record a commit' })).toBeVisible()
 })
 
 test('shows Previous lesson only at step one and opens the preceding lesson’s first step', async ({
@@ -191,7 +191,7 @@ test('Next and Replay send a copy to staging while the working file stays visibl
   await expect(illustration).toHaveAttribute('aria-busy', 'true')
   await expect(staged).toBeVisible()
   await expect(illustration).toHaveAttribute('aria-busy', 'false')
-  await expect(scene.getByText('Version C · Tracked', { exact: true })).toBeVisible()
+  await expect(scene.getByText('Version C · Unstaged edit', { exact: true })).toBeVisible()
   await expect(staged).toBeVisible()
 })
 
@@ -211,7 +211,7 @@ test('direct-entry Replay stops cleanly on navigation and live reduced motion', 
   await page.getByRole('button', { name: /^Step 3:/ }).click()
   await expect(illustration).toHaveAttribute('aria-busy', 'false')
   await expect.poll(animationCount).toBe(0)
-  await expect(scene.getByText('Version C · Tracked', { exact: true })).toBeVisible()
+  await expect(scene.getByText('Version C · Unstaged edit', { exact: true })).toBeVisible()
   await expect(staged).toBeVisible()
   await page.getByRole('button', { name: 'Back', exact: true }).click()
   await expect(illustration).toHaveAttribute('aria-busy', 'true')
@@ -230,7 +230,9 @@ test('keeps distinct versions readable on phones and the guide reachable on shor
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#/choose-what-to-stage/3')
   const figure = page.getByRole('figure', { name: 'Repository illustration' })
-  const working = figure.getByText('Version C · Tracked', { exact: true }).filter({ visible: true })
+  const working = figure
+    .getByText('Version C · Unstaged edit', { exact: true })
+    .filter({ visible: true })
   const staged = figure.getByText('Version B · Staged', { exact: true }).filter({ visible: true })
   const story = page.getByText(/^Bob asks what Alice would commit/)
   await expect(working).toBeVisible()

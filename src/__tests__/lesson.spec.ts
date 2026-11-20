@@ -1,4 +1,6 @@
 import { expect, it } from 'vitest'
+import { lessons } from '../lessons/catalog'
+import { createPlayer } from '../player/createPlayer'
 import { chooseWhatToStage } from '../lessons/chooseWhatToStage'
 import { editAndInspect } from '../lessons/editAndInspect'
 import { startRepository } from '../lessons/startRepository'
@@ -63,4 +65,72 @@ it('stages a copy of the edited note and keeps that version after another edit',
   expect(editAgain!.after.staged).toEqual(staged.staged)
   expect(staged.commits).toEqual([])
   expect(editAgain!.after.commits).toEqual([])
+})
+
+it('records only the staged contents in the root commit without clearing staging', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/record-a-commit/1')
+  const opening = player.presentation.value.state
+  expect(opening.commits).toEqual([])
+  expect(opening.working[0]?.version).toBe('C')
+  expect(opening.staged[0]?.version).toBe('B')
+
+  player.next()
+  const recorded = player.presentation.value.state
+  expect(recorded.commits).toEqual([
+    {
+      id: 'c1',
+      parents: [],
+      snapshot: [
+        {
+          name: 'notes.txt',
+          version: 'B',
+          contents: 'A little less magic.\nGit keeps a history.\n',
+        },
+      ],
+    },
+  ])
+  expect(recorded.branchTip).toBe('c1')
+  expect(recorded.staged).toEqual(opening.staged)
+  expect(recorded.working).toEqual(opening.working)
+})
+
+it('opens history independently at c1 and ends clean after recording and reading c2', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/read-the-history/1')
+  expect(player.location.value.slug).toBe('read-the-history')
+  const opening = player.presentation.value.state
+  expect(opening.commits.map(({ id }) => id)).toEqual(['c1'])
+  expect(opening.working[0]?.version).toBe('C')
+  expect(opening.staged[0]?.version).toBe('B')
+
+  player.next()
+  expect(player.presentation.value.state).toMatchObject({
+    branchTip: 'c1',
+    staged: [{ version: 'C' }],
+  })
+  player.next()
+  const recorded = player.presentation.value.state
+  expect(recorded.branchTip).toBe('c2')
+  expect(recorded.commits[1]).toEqual({
+    id: 'c2',
+    parents: ['c1'],
+    snapshot: [
+      {
+        name: 'notes.txt',
+        version: 'C',
+        contents: 'A little less magic.\nGit keeps a history.\nOnly selected contents go in.\n',
+      },
+    ],
+  })
+  expect(recorded.staged).toEqual(recorded.commits[1]?.snapshot)
+  expect(recorded.working).toEqual([{ ...recorded.staged[0], status: 'tracked' }])
+  player.next()
+  expect(player.step.value.action.text).toBe('git log')
+  expect(player.presentation.value.state).toEqual(recorded)
+
+  player.openLesson('read-the-history')
+  expect(player.presentation.value.state).toEqual(opening)
+  player.openLesson('record-a-commit')
+  expect(player.presentation.value.state.commits).toEqual([])
 })
