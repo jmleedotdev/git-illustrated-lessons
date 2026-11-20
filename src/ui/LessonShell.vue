@@ -282,7 +282,7 @@ onUnmounted(() => {
           </nav>
           <a
             v-if="!canBack && previousLesson"
-            :href="`#/${previousLesson.slug}/${previousLesson.steps.length}`"
+            :href="`#/${previousLesson.slug}/1`"
             class="control mt-2"
             @click="openAdjacentLesson($event, player.openPreviousLesson)"
           >

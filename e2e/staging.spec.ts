@@ -81,7 +81,7 @@ test('opens every editing and staging step in its completed state', async ({ pag
   await expect(page.getByRole('link', { name: /^Next:/ })).toHaveCount(0)
 })
 
-test('shows Previous lesson only at step one and returns to the preceding lesson’s last step', async ({
+test('shows Previous lesson only at step one and opens the preceding lesson’s first step', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 700 })
@@ -93,7 +93,7 @@ test('shows Previous lesson only at step one and returns to the preceding lesson
   await back.click()
   await expect(back).toBeDisabled()
   await expect(previous).toHaveText('Previous: Edit and inspect')
-  await expect(previous).toHaveAttribute('href', '#/edit-and-inspect/2')
+  await expect(previous).toHaveAttribute('href', '#/edit-and-inspect/1')
   await bar.getByRole('button', { name: 'Next' }).press('Tab')
   await expect(previous).toBeFocused()
   await expect
@@ -103,11 +103,11 @@ test('shows Previous lesson only at step one and returns to the preceding lesson
     })
     .toBeLessThan((await bar.boundingBox())!.y)
   await previous.press('Enter')
-  await expect(page).toHaveURL(/#\/edit-and-inspect\/2$/)
+  await expect(page).toHaveURL(/#\/edit-and-inspect\/1$/)
   await expect(page.getByRole('heading', { name: 'Edit and inspect', exact: true })).toBeFocused()
-  await expect(previous).toHaveCount(0)
+  await expect(previous).toHaveText('Previous: Start a repository')
   await page.goBack()
-  await expect(previous).toBeVisible()
+  await expect(previous).toHaveText('Previous: Edit and inspect')
   await page.goto('/#/start-a-repository/1')
   await expect(previous).toHaveCount(0)
 })

@@ -73,7 +73,7 @@ export function createPlayer(catalog: readonly Lesson[]) {
     },
     openPreviousLesson: () => {
       const destination = previousLesson.value
-      if (!canBack.value && destination) go(destination.slug, destination.steps.length, true)
+      if (!canBack.value && destination) go(destination.slug, 1, true)
     },
     openNextLesson: () => {
       if (!canNext.value && nextLesson.value) go(nextLesson.value.slug, 1, true)

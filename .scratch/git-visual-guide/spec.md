@@ -209,7 +209,7 @@ The prototype calls those successive notes.txt contents B, C, and D. Such diagra
 
 - Use static-host-friendly hash URLs with stable lesson slugs and one-based step numbers, such as #/choose-what-to-stage/2. Refresh preserves the location; browser Back/Forward restores it. Direct entry must work independently of earlier playback.
 - Opening a lesson through Lessons selects its first step and closes the list. Numbered steps select directly. No separate progress persistence is required.
-- Back/Next never cross lesson boundaries. Disable Back at the first step and Next at the last. When an adjacent lesson exists, provide a separate `Previous: <lesson title>` link at step one and a `Next: <lesson title>` link at the end. The former opens the preceding lesson at its last step; the latter opens the following lesson at its first step. Do not invent an eleventh lesson after Push the work.
+- Back/Next never cross lesson boundaries. Disable Back at the first step and Next at the last. When an adjacent lesson exists, provide a separate `Previous: <lesson title>` link at step one and a `Next: <lesson title>` link at the end. Both open the destination lesson at step one. Do not invent an eleventh lesson after Push the work.
 - Invalid locations normalize to valid starting locations, never undefined scenes. A valid lesson with an invalid step may normalize to that lesson's first step; an unknown or missing lesson may normalize to the first lesson's first step.
 - Replay never changes the selected lesson, step, or URL location. Snapshot inspection is not lesson navigation or checkout.
 - All navigation controls are keyboard-operable, have visible focus, and expose the current step accessibly. Closing Lessons returns focus sensibly.
