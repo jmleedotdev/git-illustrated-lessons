@@ -126,7 +126,7 @@ it('opens history independently at c1 and ends clean after recording and reading
   expect(recorded.staged).toEqual(recorded.commits[1]?.snapshot)
   expect(recorded.working).toEqual([{ ...recorded.staged[0], status: 'tracked' }])
   player.next()
-  expect(player.step.value.action.text).toBe('git log')
+  expect(player.step.value.action?.text).toBe('git log')
   expect(player.presentation.value.state).toEqual(recorded)
 
   player.openLesson('read-the-history')
@@ -198,7 +198,7 @@ it('joins both histories in order and ends with a clean main without deleting id
   player.restore('#/bring-work-together/4')
   const diverged = player.presentation.value.state
   player.next()
-  expect(player.step.value.action.text).toBe('git merge ideas')
+  expect(player.step.value.action?.text).toBe('git merge ideas')
   const merged = player.presentation.value.state
   const combined = [diverged.commits[3]!.snapshot[0]!, diverged.commits[2]!.snapshot[1]!]
   expect(merged).toEqual({

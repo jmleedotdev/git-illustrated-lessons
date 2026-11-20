@@ -1,10 +1,10 @@
 import { freezeLesson, type RepositoryState } from './lesson'
+import { ideaFile } from './notes'
 import { afterSecondCommit } from './readHistory'
 
 const opening = afterSecondCommit
 const created: RepositoryState = { ...opening, branches: { main: 'c2', ideas: 'c2' } }
 const switched: RepositoryState = { ...created, head: 'ideas' }
-export const ideaFile = { name: 'ideas.txt', contents: 'Draw the history as a map.\n' }
 const edited: RepositoryState = {
   ...switched,
   working: [...switched.working, { ...ideaFile, status: 'untracked' }],

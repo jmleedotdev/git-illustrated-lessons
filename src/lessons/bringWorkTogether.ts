@@ -1,13 +1,8 @@
-import { afterReturningToMain, ideaFile } from './createAndSwitchBranches'
+import { afterReturningToMain } from './createAndSwitchBranches'
 import { freezeLesson, type RepositoryState } from './lesson'
-import { newerNote } from './notes'
+import { ideaFile, revisedNote } from './notes'
 
 const opening = afterReturningToMain
-const revisedNote = {
-  ...newerNote,
-  version: 'D',
-  contents: 'A little less magic.\nGit keeps a history.\nOnly staged contents go into a commit.\n',
-}
 const edited: RepositoryState = {
   ...opening,
   working: [{ ...revisedNote, status: 'tracked' }],

@@ -158,7 +158,7 @@ onUnmounted(() => {
       aria-label="Lessons"
       class="lesson-list space-y-inset"
     >
-      <p class="eyebrow">The local repository</p>
+      <p class="eyebrow">Git, from local to hosted</p>
       <ul>
         <li v-for="(item, index) in lessons" :key="item.slug">
           <a
@@ -223,12 +223,16 @@ onUnmounted(() => {
           <div ref="guideContent" class="guide-content">
             <h2 id="step-title">{{ step.title }}</h2>
             <pre
-              v-if="step.action.kind === 'command'"
+              v-if="step.action?.kind === 'command'"
               class="command-block"
               aria-label="Git command"
             ><code>{{ step.action.text }}</code></pre>
-            <div v-else class="editor-action">
-              <h3 class="eyebrow">In Alice’s editor</h3>
+            <div v-else-if="step.action" class="editor-action">
+              <h3 class="eyebrow">
+                {{
+                  step.action.kind === 'github' ? 'On GitHub · Illustrated' : 'In Alice’s editor'
+                }}
+              </h3>
               <p class="story-text"><InlineText :text="step.action.text" /></p>
             </div>
             <p class="story-text"><InlineText :text="step.story" /></p>
@@ -256,6 +260,12 @@ onUnmounted(() => {
               <h3 class="eyebrow">What changed</h3>
               <p class="story-text"><InlineText :text="step.change" /></p>
             </div>
+            <details v-if="step.diagram">
+              <summary class="prerequisite-toggle text-label">Diagram in words</summary>
+              <p id="remote-diagram-description" class="story-text">
+                <InlineText :text="step.diagram" />
+              </p>
+            </details>
             <details v-if="lesson === lessons[0] && location.step === 1" class="text-label">
               <summary class="prerequisite-toggle">Before you begin</summary>
               <p class="mt-2">

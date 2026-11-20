@@ -628,7 +628,7 @@
   }
 }
 @media (max-height: 900px) {
-  .lesson-layout:has(.has-history) .mental-model {
+  .lesson-layout:has(.has-history, .remote-stage) .mental-model {
     display: none;
   }
 }

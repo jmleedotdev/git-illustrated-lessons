@@ -10,6 +10,19 @@ export interface Commit {
   readonly snapshot: readonly FileContents[]
 }
 
+interface HostedRepository {
+  readonly name: string
+  readonly branches: Readonly<Record<string, string>>
+  readonly commits: readonly Commit[]
+  readonly files: readonly FileContents[]
+}
+
+export interface RemoteSetup {
+  readonly hosted: HostedRepository | null
+  readonly origin: string | null
+  readonly upstream: string | null
+}
+
 export interface RepositoryState {
   readonly initialized: boolean
   readonly head: string | null
@@ -20,6 +33,7 @@ export interface RepositoryState {
   /** Named references with recorded tips. An unborn branch has no entry. */
   readonly branches?: Readonly<Record<string, string>>
   readonly commits: readonly Commit[]
+  readonly remoteSetup?: RemoteSetup
 }
 
 export function checkoutTip(state: RepositoryState) {
@@ -31,9 +45,10 @@ export interface LessonStep {
   readonly title: string
   /** Backticks mark inline code; always rendered as text, never HTML. */
   readonly story: string
-  readonly action: Readonly<{ kind: 'editor' | 'command'; text: string }>
+  readonly action?: Readonly<{ kind: 'editor' | 'command' | 'github'; text: string }>
   readonly idea: string
   readonly change: string
+  readonly diagram?: string
   readonly transition: Readonly<{
     kind:
       | 'open-folder'
@@ -47,6 +62,9 @@ export interface LessonStep {
       | 'create-branch'
       | 'switch-branch'
       | 'merge'
+      | 'inspect-remote'
+      | 'create-remote'
+      | 'add-origin'
     before: RepositoryState
     after: RepositoryState
   }>

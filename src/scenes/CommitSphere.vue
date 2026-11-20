@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Commit } from '../lessons/lesson'
 
-defineProps<{ commit: Commit; current: boolean; labelOffset?: number }>()
+defineProps<{ commit: Commit; current: boolean; labelOffset?: number; compact?: boolean }>()
 </script>
 
 <template>
@@ -22,19 +22,21 @@ defineProps<{ commit: Commit; current: boolean; labelOffset?: number }>()
       stroke-width="5"
       stroke-linecap="round"
     />
-    <text y="8" class="commit-id font-bold" font-size="22">{{ commit.id }}</text>
-    <text
-      v-for="(file, index) in commit.snapshot"
-      :key="file.name"
-      :x="labelOffset"
-      :y="80 + index * 21"
-      class="snapshot-label"
-      font-size="17"
-    >
-      {{ file.name }}{{ file.version ? ' · ' + file.version : '' }}
-    </text>
-    <text v-if="!commit.parents.length" y="125" class="snapshot-label" font-size="17"
-      >Root · no parent</text
-    >
+    <text y="8" class="commit-id font-bold" :font-size="compact ? 27 : 22">{{ commit.id }}</text>
+    <template v-if="!compact">
+      <text
+        v-for="(file, index) in commit.snapshot"
+        :key="file.name"
+        :x="labelOffset"
+        :y="80 + index * 21"
+        class="snapshot-label"
+        font-size="17"
+      >
+        {{ file.name }}{{ file.version ? ' · ' + file.version : '' }}
+      </text>
+      <text v-if="!commit.parents.length" y="125" class="snapshot-label" font-size="17"
+        >Root · no parent</text
+      >
+    </template>
   </g>
 </template>
