@@ -5,14 +5,26 @@ import { createPlayer, type Presentation } from '../player/createPlayer'
 import InlineText from './InlineText.vue'
 
 const props = defineProps<{ lessons: readonly Lesson[] }>()
-defineSlots<{ scene(props: { presentation: Presentation; description: string }): unknown }>()
+defineSlots<{
+  scene(props: {
+    presentation: Presentation
+    description: string
+    replay: () => void
+    reducedMotion: boolean
+  }): unknown
+  'mental-model'(): unknown
+}>()
 const player = createPlayer(props.lessons)
 const { lesson, step, location, presentation, canBack, canNext, nextLesson, reducedMotion } = player
 const listOpen = ref(false)
 const toggle = ref<HTMLButtonElement>()
 const lessonList = ref<HTMLElement>()
-const guide = ref<HTMLElement>()
+const guideContent = ref<HTMLElement>()
+const navigation = ref<HTMLElement>()
 let restoring = false
+function formatLessonNumber(index: number) {
+  return String(index + 1).padStart(2, '0')
+}
 function restore() {
   restoring = true
   player.restore(window.location.hash)
@@ -23,7 +35,9 @@ function closeLessons() {
   listOpen.value = false
   void nextTick(() => toggle.value?.focus())
 }
-function openLesson(slug: string) {
+function openLesson(event: MouseEvent, slug: string) {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+  event.preventDefault()
   player.openLesson(slug)
   closeLessons()
 }
@@ -31,7 +45,7 @@ async function toggleLessons() {
   if (listOpen.value) return closeLessons()
   listOpen.value = true
   await nextTick()
-  lessonList.value?.querySelector('button')?.focus()
+  lessonList.value?.querySelector('a')?.focus()
 }
 function keyboard(event: KeyboardEvent) {
   if (event.key === 'Escape' && listOpen.value) {
@@ -54,11 +68,26 @@ function keyboard(event: KeyboardEvent) {
     player.back()
   }
 }
+function revealFocusedControl(event: FocusEvent) {
+  const target = event.target
+  const bar = navigation.value
+  if (!(target instanceof HTMLElement) || !bar || bar.contains(target)) return
+  if (getComputedStyle(bar).position !== 'fixed') return
+
+  requestAnimationFrame(() => {
+    if (target !== document.activeElement) return
+    if (target.getBoundingClientRect().bottom + 8 >= bar.getBoundingClientRect().top) {
+      target.scrollIntoView({ block: 'center' })
+    }
+  })
+}
 restore()
 watch(
   player.hash,
   (hash) => {
-    if (guide.value && !guide.value.contains(document.activeElement)) guide.value.scrollTop = 0
+    if (guideContent.value && !guideContent.value.contains(document.activeElement)) {
+      guideContent.value.scrollTop = 0
+    }
     if (!restoring && window.location.hash !== hash) history.pushState(null, '', hash)
   },
   { flush: 'sync' },
@@ -84,9 +113,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="lesson-app mx-auto max-w-[1672px] px-inset md:px-section">
-    <header class="lesson-header flex items-center gap-inset border-b border-rule py-3">
-      <span class="font-bold">Git, illustrated</span>
+  <div class="lesson-app">
+    <header class="lesson-header flex items-center">
+      <span class="lesson-brand font-bold"><span aria-hidden="true">⌘</span> Git, illustrated</span>
+      <span class="lesson-section">Learn / {{ lesson.topic }}</span>
       <button
         ref="toggle"
         type="button"
@@ -103,131 +133,150 @@ onUnmounted(() => {
       id="lesson-list"
       ref="lessonList"
       aria-label="Lessons"
-      class="paper-sheet my-inset space-y-inset"
+      class="lesson-list space-y-inset"
     >
-      <h2>Lessons</h2>
-      <button
-        v-for="item in lessons"
-        :key="item.slug"
-        type="button"
-        class="control"
-        @click="openLesson(item.slug)"
-      >
-        {{ item.title }}
-      </button>
+      <p class="eyebrow">The local repository</p>
+      <ul>
+        <li v-for="(item, index) in lessons" :key="item.slug">
+          <a
+            :href="`#/${item.slug}/1`"
+            :aria-current="item.slug === lesson.slug ? 'page' : undefined"
+            @click="openLesson($event, item.slug)"
+          >
+            {{ formatLessonNumber(index) }} {{ item.title }}
+          </a>
+        </li>
+      </ul>
     </nav>
-    <main class="lesson-layout">
+    <main class="lesson-layout" @focusin="revealFocusedControl">
       <section class="lesson-canvas paper-sheet" aria-labelledby="lesson-title">
-        <div class="flex flex-wrap items-center justify-between gap-2 text-label text-muted">
-          <span>Lessons / {{ lesson.topic }}</span>
-          <ul class="flex flex-wrap gap-2" aria-label="Lesson details">
-            <li class="lesson-detail">{{ lesson.duration }}</li>
-            <li class="lesson-detail">{{ lesson.difficulty }}</li>
-            <li class="lesson-detail">{{ lesson.steps.length }} steps</li>
-          </ul>
-        </div>
-        <h1 id="lesson-title" class="lesson-title mt-3">{{ lesson.title }}</h1>
-        <slot name="scene" :presentation="presentation" :description="step.change" />
-        <div class="scene-controls flex flex-wrap items-center justify-between gap-3">
-          <nav aria-label="Explanation steps" class="flex flex-wrap gap-2">
-            <button
-              v-for="(item, index) in lesson.steps"
-              :key="item.label"
-              type="button"
-              :aria-label="`Step ${index + 1}: ${item.label}`"
-              :aria-current="location.step === index + 1 ? 'step' : undefined"
-              :class="['control', { 'control-primary': location.step === index + 1 }]"
-              @click="player.select(index + 1)"
+        <div class="lesson-heading">
+          <div class="lesson-topline flex flex-wrap items-center justify-between">
+            <span class="eyebrow"
+              >{{ lesson.topic }} / {{ formatLessonNumber(lessons.indexOf(lesson)) }}</span
             >
-              {{ index + 1 }}
-            </button>
-          </nav>
-          <div>
+            <ul class="lesson-metadata flex flex-wrap" aria-label="Lesson details">
+              <li class="lesson-pill">{{ lesson.duration }}</li>
+              <li class="lesson-pill">{{ lesson.difficulty }}</li>
+              <li class="lesson-pill">{{ lesson.steps.length }} steps</li>
+            </ul>
+          </div>
+          <h1 id="lesson-title">{{ lesson.title }}</h1>
+        </div>
+        <slot
+          name="scene"
+          :presentation="presentation"
+          :description="step.change"
+          :replay="player.replay"
+          :reduced-motion="reducedMotion"
+        />
+        <nav aria-label="Explanation steps" class="lesson-timeline">
+          <button
+            v-for="(item, index) in lesson.steps"
+            :key="item.label"
+            type="button"
+            :aria-label="`Step ${index + 1}: ${item.label}`"
+            :aria-current="location.step === index + 1 ? 'step' : undefined"
+            @click="player.select(index + 1)"
+          >
+            <span class="timeline-number">{{ index + 1 }}</span>
+            <span>{{ item.label }}</span>
+          </button>
+        </nav>
+      </section>
+
+      <div class="lesson-rail">
+        <section class="lesson-guide" aria-labelledby="step-title">
+          <div class="guide-meta" role="status" aria-live="polite" aria-atomic="true">
+            <span class="guide-tag">{{ step.label }}</span>
+            <span
+              ><span class="sr-only">Step {{ location.step }} of {{ lesson.steps.length }}</span
+              ><span aria-hidden="true">{{ location.step }} / {{ lesson.steps.length }}</span></span
+            >
+          </div>
+          <div ref="guideContent" class="guide-content">
+            <h2 id="step-title">{{ step.title }}</h2>
+            <pre
+              v-if="step.action.kind === 'command'"
+              class="command-block"
+              aria-label="Git command"
+            ><code>{{ step.action.text }}</code></pre>
+            <div v-else class="editor-action">
+              <h3 class="eyebrow">In Alice’s editor</h3>
+              <p class="story-text"><InlineText :text="step.action.text" /></p>
+            </div>
+            <p class="story-text"><InlineText :text="step.story" /></p>
+            <aside class="key-idea guide-idea">
+              <h3>
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  class="shrink-0"
+                >
+                  <path d="M9 18h6M10 21h4M9 15c0-2-3-3-3-7a6 6 0 0 1 12 0c0 4-3 5-3 7v1H9z" />
+                </svg>
+                Key idea
+              </h3>
+              <p class="story-text"><InlineText :text="step.idea" /></p>
+            </aside>
+            <div class="guide-change">
+              <h3 class="eyebrow">What changed</h3>
+              <p class="story-text"><InlineText :text="step.change" /></p>
+            </div>
+            <details class="text-label">
+              <summary class="prerequisite-toggle">Before you begin</summary>
+              <p class="mt-2">
+                To follow along on your own, install Git and configure your commit identity. Later
+                lessons also assume a GitHub account with working HTTPS authentication.
+              </p>
+            </details>
+          </div>
+          <nav ref="navigation" class="step-navigation" aria-label="Walkthrough">
             <button
               type="button"
               class="control"
-              :disabled="reducedMotion"
-              :aria-describedby="reducedMotion ? 'motion-reason' : undefined"
-              @click="player.replay"
+              aria-label="Back"
+              :disabled="!canBack"
+              @click="player.back"
             >
-              Replay
+              <span aria-hidden="true">←</span> Back
             </button>
-            <p v-if="reducedMotion" id="motion-reason" class="text-label mt-2">
-              Unavailable with reduced motion.
-            </p>
-          </div>
-        </div>
-      </section>
-      <section ref="guide" class="lesson-guide" aria-labelledby="step-title">
-        <p role="status" aria-live="polite" aria-atomic="true" class="eyebrow">
-          Step {{ location.step }} of {{ lesson.steps.length }} · {{ step.label }}
-        </p>
-        <h2 id="step-title" class="mt-3">{{ step.title }}</h2>
-        <div class="my-layout">
-          <pre
-            v-if="step.action.kind === 'command'"
-            class="command-block"
-            aria-label="Git command"
-          ><code>{{ step.action.text }}</code></pre>
-          <div v-else class="border-l-2 border-git pl-inset">
-            <h3 class="eyebrow">In Alice’s editor</h3>
-            <p class="story-text mt-2"><InlineText :text="step.action.text" /></p>
-          </div>
-        </div>
-        <p class="story-text"><InlineText :text="step.story" /></p>
-        <aside class="key-idea my-layout">
-          <h3>
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.7"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              aria-hidden="true"
-              class="shrink-0"
+            <button
+              type="button"
+              class="control control-primary"
+              aria-label="Next"
+              :disabled="!canNext"
+              @click="player.next"
             >
-              <path d="M9 18h6M10 21h4M9 15c0-2-3-3-3-7a6 6 0 0 1 12 0c0 4-3 5-3 7v1H9z" />
-            </svg>
-            Key idea
-          </h3>
-          <p class="story-text"><InlineText :text="step.idea" /></p>
-        </aside>
-        <nav
-          class="step-navigation mt-layout flex justify-between gap-inset"
-          aria-label="Walkthrough"
-        >
-          <button type="button" class="control" :disabled="!canBack" @click="player.back">
-            Back
-          </button>
+              Next <span aria-hidden="true">→</span>
+            </button>
+          </nav>
           <button
+            v-if="!canNext && nextLesson"
             type="button"
-            class="control control-primary"
-            :disabled="!canNext"
-            @click="player.next"
+            class="control"
+            @click="player.openNextLesson"
           >
-            Next
+            Next lesson: {{ nextLesson.title }}
           </button>
-        </nav>
-        <button
-          v-if="!canNext && nextLesson"
-          type="button"
-          class="control mt-layout"
-          @click="player.openNextLesson"
+          <small class="keyboard-hint">Select a step to jump · ← → to navigate</small>
+        </section>
+        <aside
+          v-if="$slots['mental-model']"
+          class="mental-model"
+          aria-labelledby="mental-model-title"
         >
-          Next lesson: {{ nextLesson.title }}
-        </button>
-        <p class="mt-inset text-label text-muted">Use ← or → to change steps.</p>
-        <details class="mt-layout text-label">
-          <summary class="prerequisite-toggle">Before you begin</summary>
-          <p class="mt-2">
-            To follow along on your own, install Git and configure your commit identity. Later
-            lessons also assume a GitHub account with working HTTPS authentication.
-          </p>
-        </details>
-      </section>
+          <h2 id="mental-model-title" class="eyebrow">The mental model</h2>
+          <slot name="mental-model" />
+        </aside>
+      </div>
     </main>
   </div>
 </template>

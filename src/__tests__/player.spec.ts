@@ -24,12 +24,13 @@ it('restores and normalizes hash locations without requesting motion', () => {
   }
 })
 
-it('selects steps within a lesson and requests motion only for Next and Replay', () => {
+it('requests motion for Back, Next, and Replay within a lesson', () => {
   const player = createPlayer(lessons)
   expect(player.location.value).toEqual({ slug: 'start-a-repository', step: 1 })
   expect(player.canBack.value).toBe(false)
   player.back()
   expect(player.location.value.step).toBe(1)
+  expect(player.presentation.value.transition).toBeNull()
   player.next()
   expect(player.location.value.step).toBe(2)
   expect(player.presentation.value.transition?.kind).toBe('initialize')
@@ -42,7 +43,8 @@ it('selects steps within a lesson and requests motion only for Next and Replay',
   expect(player.location.value.step).toBe(3)
   expect(player.presentation.value.transition?.kind).toBe('inspect')
   player.back()
-  expect(player.presentation.value.transition).toBeNull()
+  expect(player.location.value.step).toBe(2)
+  expect(player.presentation.value.transition?.kind).toBe('initialize')
   expect(player.nextLesson.value).toBeNull()
 })
 
@@ -58,6 +60,10 @@ it('settles active playback when reduced motion changes and does not animate Rep
   player.next()
   expect(player.presentation.value.transition).toBeNull()
   expect(player.location.value.step).toBe(3)
+  player.back()
+  expect(player.presentation.value.transition).toBeNull()
+  expect(player.location.value.step).toBe(2)
+  player.next()
   player.setReducedMotion(false)
   expect(player.presentation.value.transition).toBeNull()
   player.replay()

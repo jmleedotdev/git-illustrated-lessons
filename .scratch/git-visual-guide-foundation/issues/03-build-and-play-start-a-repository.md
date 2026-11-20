@@ -17,7 +17,7 @@ The original ticket and implementation spec govern all lesson behavior and prese
 - [x] Preserve command/editor-action distinctions, safe text-based inline-code formatting, the outlined light-bulb Key idea callout, numbered steps, Back/Next, and Replay. Omit comparison controls, debug displays, unapproved site destinations, and redundant scene-introduction copy.
 - [x] Stable hash locations use a lesson slug and one-based step number. Direct entry, refresh, browser Back/Forward, and invalid-location normalization work. Opening the lesson from Lessons selects step one and closes the list.
 - [x] Back/Next remain within the lesson and disable at boundaries. Numbered steps select directly. The player supports a separate Next lesson action only when a following implemented lesson exists, without placeholder or invented destinations.
-- [x] Next plays the destination transition; initial load, Back, direct selection, and browser-history navigation show final states immediately. Replay independently repeats the current step's before-to-after transition without changing location. Navigation cancels superseded work, and no callback can restore a stale scene. No auto-advance occurs.
+- [x] The lesson’s Back and Next controls play the destination transition. Initial load, direct selection, and browser-history navigation show final states immediately. Replay independently repeats the current step's before-to-after transition without changing location. Navigation cancels superseded work, and no callback can restore a stale scene. No auto-advance occurs.
 - [x] Honor reduced motion at load and on live changes: cancel motion, show the final state immediately, retain the explanation, and keep Replay visible but disabled with “Unavailable with reduced motion.” Remove travel and decorative motion rather than shortening it.
 - [x] Provide named scenes, equivalent per-step state/change text, announced step changes, keyboard controls, visible focus, and sensible focus return from Lessons. Preserve at least 16px story text and 44×44px targets without relying on color alone.
 - [x] Phones use compact scene-before-story ordering and normal document scrolling, with fixed safe-area-aware Back/Next and enough padding to protect content/focus. Keep numbered steps and Replay near the scene. Short desktops scroll the guide or reflow rather than shrinking the whole page; zoom enlarges content.
@@ -34,3 +34,11 @@ The original ticket and implementation spec govern all lesson behavior and prese
 - Standards and Spec reviews led to updated README commands, shared platform geometry and border tokens, an explicit pre-Git file state, a focused opening animation, and stronger interruption checks. The scaffold retains its selected Vue Router dependency. The player owns hash locations through the browser History API.
 
 [Desktop preview](../screenshots/start-repository-desktop.png) · [Phone scene](../screenshots/start-repository-phone.png) · [Phone guide](../screenshots/start-repository-phone-guide.png)
+
+## Comments
+
+### Prototype fidelity revision — 20 November 2026
+
+The lesson now uses the approved revised A shell from the `prototype/git-visual-guide` branch, with one bordered stage, a Replay toolbar, named numbered steps, and a separate guide rail. The SVG uses the prototype’s 960×500 viewBox, grid, isometric platform paths, and shadow geometry. The working directory uses the folded-page SVG approved in ticket 02, shared with the showcase. The staging and history platforms are empty as required by the first lesson.
+
+Compared the prototype and production build side by side in Chromium at 1440×900, 1200×560, 390×844, and 320×700. The desktop stage, guide column, and timeline stayed in the same positions within 2 CSS px. The phone layout uses readable labels below the same SVG and keeps Back/Next fixed. The screenshots linked above show the revised production build. `pnpm verify` passed 7 unit tests and 7 Chromium tests per environment after the revision.

@@ -39,10 +39,9 @@ export const startRepository: Lesson = freeze({
         text: 'Alice opens the existing `notes.txt` in her project folder.',
       },
       story:
-        'Alice has a project folder containing `notes.txt`. It says “A little less magic.” Bob asks, “Does having a file mean Git is already looking after it?” Not yet. This folder has no local repository.',
+        'Alice opens `notes.txt`. It says “A little less magic.” Bob asks, “Is this file in Git already?” Alice checks the folder. It has no repository yet.',
       idea: 'A file can exist in the working directory before Git is initialized. Nothing has been staged or recorded.',
-      change:
-        'Alice opens the folder. `notes.txt` is present. There is no local repository, staging area, or recorded history yet.',
+      change: '`notes.txt` is in the folder. Git, staging, and history are not set up yet.',
       transition: { kind: 'open-folder', before: folder, after: folder },
     },
     {
@@ -50,10 +49,10 @@ export const startRepository: Lesson = freeze({
       title: 'Alice initializes Git.',
       action: { kind: 'command', text: 'git init -b main' },
       story:
-        'Alice initializes a local repository and chooses `main` as its initial branch. Bob asks, “So our note is saved in Git now?” Alice explains that `git init` sets up the repository. Staging and committing the file are separate actions.',
-      idea: '`HEAD` refers to `main`, which has no commit yet. Initializing a repository does not automatically track files.',
+        'Alice creates a local repository with `main` as its first branch. Bob asks, “Is our note saved in Git now?” Alice explains that it still needs to be staged and committed.',
+      idea: '`HEAD` points to `main`. The branch is ready for its first commit, and existing files are still untracked.',
       change:
-        'Git is initialized. `HEAD` points to `main`. `notes.txt` is untracked, the staging area is empty, and there are no commits.',
+        '`HEAD` points to `main`. `notes.txt` is untracked, staging is empty, and there are no commits.',
       transition: { kind: 'initialize', before: folder, after: initialized },
     },
     {
@@ -61,10 +60,9 @@ export const startRepository: Lesson = freeze({
       title: 'Alice checks the repository.',
       action: { kind: 'command', text: 'git status' },
       story:
-        'Alice checks `git status`. It reports no commits yet on `main`, and lists `notes.txt` as untracked. Bob notices the file is still right where it started. Reading status does not change the file, stage its contents, or create history.',
-      idea: 'The working directory, staging area, and recorded history are different things. Our note exists only in the working directory.',
-      change:
-        '`git status` confirms that `HEAD` points to `main`. `notes.txt` is untracked, the staging area is empty, and there are no commits.',
+        'Alice checks `git status`. Bob sees `notes.txt` listed as untracked and no commits on `main`. The file stays in the working directory.',
+      idea: '`git status` shows what Git sees. The file, staging area, and history stay as they were.',
+      change: '`main` still has no commits. `notes.txt` is untracked and staging is empty.',
       transition: { kind: 'inspect', before: initialized, after: initialized },
     },
   ],

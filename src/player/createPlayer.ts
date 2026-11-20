@@ -7,6 +7,7 @@ export interface PlayerLocation {
 }
 export interface Presentation {
   readonly state: RepositoryState
+  readonly kind: LessonStep['transition']['kind']
   readonly transition: LessonStep['transition'] | null
 }
 
@@ -23,6 +24,7 @@ export function createPlayer(catalog: readonly Lesson[]) {
   const reducedMotion = shallowRef(false)
   const presentation = shallowRef<Presentation>({
     state: step.value.transition.after,
+    kind: step.value.transition.kind,
     transition: null,
   })
   const canBack = computed(() => location.value.step > 1)
@@ -32,6 +34,7 @@ export function createPlayer(catalog: readonly Lesson[]) {
   function present(animate: boolean) {
     presentation.value = {
       state: step.value.transition.after,
+      kind: step.value.transition.kind,
       transition: animate && !reducedMotion.value ? step.value.transition : null,
     }
   }
@@ -60,7 +63,7 @@ export function createPlayer(catalog: readonly Lesson[]) {
     select: (number: number) => go(lesson.value.slug, number),
     openLesson: (slug: string) => go(slug, 1),
     back: () => {
-      if (canBack.value) go(lesson.value.slug, location.value.step - 1)
+      if (canBack.value) go(lesson.value.slug, location.value.step - 1, true)
     },
     next: () => {
       if (canNext.value) go(lesson.value.slug, location.value.step + 1, true)

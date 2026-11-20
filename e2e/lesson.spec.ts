@@ -24,7 +24,9 @@ test('every step is independently readable and navigable', async ({ page }) => {
   }
   await expect(page.getByRole('button', { name: 'Next lesson' })).toHaveCount(0)
   await page.getByRole('button', { name: 'Lessons', exact: true }).click()
-  await page.getByRole('button', { name: 'Start a repository', exact: true }).click()
+  const list = page.getByRole('navigation', { name: 'Lessons' })
+  await expect(list.getByText('A little less magic.')).toHaveCount(0)
+  await list.getByRole('link', { name: '01 Start a repository', exact: true }).click()
   await expect(page).toHaveURL(/#\/start-a-repository\/1$/)
   await expect(page.getByRole('navigation', { name: 'Lessons' })).toBeHidden()
   await expect(page.getByRole('button', { name: 'Lessons', exact: true })).toBeFocused()
@@ -65,20 +67,38 @@ test('initialization replays its before and after states and allows interruption
 }) => {
   await page.goto('/#/start-a-repository/2')
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  const diagram = scene.getByRole('img', { name: /Repository scene/ })
   const replay = page.getByRole('button', { name: 'Replay' })
   const originalUrl = page.url()
   await expect(scene).toHaveAttribute('aria-busy', 'false')
-  await expect(scene.getByText('HEAD → main')).toBeVisible()
+  await expect(diagram.getByText('HEAD → main')).toBeVisible()
   await replay.click()
-  await expect(scene.getByText('Git not initialized')).toBeVisible()
+  await expect(diagram.getByText('Git not initialized')).toBeVisible()
+  await expect(diagram.getByText('Existing file', { exact: true })).toBeVisible()
+  await expect(diagram.getByText('Not set up yet', { exact: true })).toBeVisible()
   await expect(scene).toHaveAttribute('aria-busy', 'true')
+  const changedLabels = ['HEAD → main', 'Untracked', 'Empty'].map((name) =>
+    diagram.getByText(name, { exact: true }),
+  )
+  await expect
+    .poll(() =>
+      Promise.all(
+        changedLabels.map((label) => label.evaluate((node) => node.getAnimations().length)),
+      ),
+    )
+    .toEqual([1, 1, 1])
+  expect(
+    await diagram
+      .getByText('No commits', { exact: true })
+      .evaluate((node) => node.getAnimations().length),
+  ).toBe(0)
   await expect(scene).toHaveAttribute('aria-busy', 'false')
   await expect(scene.getByText('HEAD → main')).toBeVisible()
   await expect(page).toHaveURL(originalUrl)
 
   await page.clock.install()
   await page.getByRole('button', { name: 'Back', exact: true }).click()
-  await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await expect(scene).toHaveAttribute('aria-busy', 'true')
   await page.getByRole('button', { name: 'Next', exact: true }).click()
   await expect(scene).toHaveAttribute('aria-busy', 'true')
   await page.getByRole('button', { name: /^Step 1:/ }).click()
@@ -108,7 +128,7 @@ test('supports keyboard focus and applies reduced motion at load and during play
   await expect(lessons).toBeFocused()
   await expect(lessons).toHaveCSS('outline-style', 'solid')
   await page.keyboard.press('Enter')
-  await expect(page.getByRole('button', { name: 'Start a repository' })).toBeFocused()
+  await expect(page.getByRole('link', { name: '01 Start a repository' })).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(lessons).toBeFocused()
   await page.keyboard.press('ArrowLeft')
@@ -128,6 +148,46 @@ test('supports keyboard focus and applies reduced motion at load and during play
   await expect(replay).toBeDisabled()
 })
 
+test('loops the folded-page highlight only while inspecting with motion enabled', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/#/start-a-repository/3')
+  const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  const loopState = () =>
+    scene.evaluate(
+      (figure) =>
+        figure
+          .getAnimations({ subtree: true })
+          .find((animation) => animation.effect?.getTiming().iterations === Infinity)?.playState,
+    )
+
+  await expect.poll(loopState).toBe('running')
+  const replay = scene.getByRole('button', { name: 'Replay' })
+  await expect(replay).toHaveCount(0)
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await scene.getByRole('button', { name: 'Pause animation' }).click()
+  await expect.poll(loopState).toBe('paused')
+  await expect(replay).toHaveCount(0)
+  await scene.getByRole('button', { name: 'Resume animation' }).click()
+  await expect.poll(loopState).toBe('running')
+  await expect(page).toHaveURL(/#\/start-a-repository\/3$/)
+
+  await page.getByRole('button', { name: 'Back', exact: true }).click()
+  await expect.poll(loopState).toBeUndefined()
+  await expect(replay).toBeEnabled()
+  await expect(scene).toHaveAttribute('aria-busy', 'true')
+  await expect(scene.getByText('Git not initialized')).toBeVisible()
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await expect(scene.getByText('HEAD → main')).toBeVisible()
+  await page.getByRole('button', { name: 'Next', exact: true }).click()
+  await expect.poll(loopState).toBe('running')
+  await expect(replay).toHaveCount(0)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect.poll(loopState).toBeUndefined()
+  await expect(replay).toBeDisabled()
+})
+
 test('keeps phone content and keyboard focus clear of fixed navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/#/start-a-repository/3')
@@ -141,11 +201,14 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
   expect(
     (await bar.getByRole('button', { name: 'Back' }).boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44)
-  await bar.getByRole('button', { name: 'Back' }).press('Tab')
+  await page.getByRole('button', { name: /^Step 3:/ }).press('Tab')
   await expect(details).toBeFocused()
-  expect((await details.boundingBox())!.y + (await details.boundingBox())!.height).toBeLessThan(
-    (await bar.boundingBox())!.y,
-  )
+  await expect
+    .poll(async () => {
+      const bounds = (await details.boundingBox())!
+      return bounds.y + bounds.height
+    })
+    .toBeLessThan((await bar.boundingBox())!.y)
   await page.keyboard.press('Enter')
   const prerequisites = page
     .getByRole('paragraph')
@@ -160,5 +223,33 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
     .toBeLessThan((await bar.boundingBox())!.y)
   await page.setViewportSize({ width: 320, height: 700 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
-  await expect(page.getByRole('button', { name: 'Replay' })).toHaveCSS('min-height', '44px')
+  await expect(page.getByRole('button', { name: 'Pause animation' })).toHaveCSS(
+    'min-height',
+    '44px',
+  )
+  await bar.getByRole('button', { name: 'Back' }).click()
+  await bar.getByRole('button', { name: 'Back' }).click()
+  await expect(scene.getByText('Git not initialized')).toBeVisible()
+  await bar.getByRole('button', { name: 'Next' }).click()
+  const stagingCaption = scene.getByText('Empty', { exact: true }).filter({ visible: true })
+  await expect.poll(() => stagingCaption.evaluate((node) => node.getAnimations().length)).toBe(1)
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+})
+
+test('fits the approved scene and guide layout on desktop', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/#/start-a-repository/2')
+  const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  const guide = page.getByRole('region', { name: 'Alice initializes Git.' })
+  const timeline = page.getByRole('navigation', { name: 'Explanation steps' })
+  await expect(scene.getByRole('img', { name: /Repository scene/ })).toHaveAttribute(
+    'viewBox',
+    '0 0 960 500',
+  )
+  await expect(scene.getByRole('button', { name: 'Replay' })).toBeInViewport()
+  await expect(timeline).toBeInViewport({ ratio: 1 })
+  await expect(page.getByRole('complementary', { name: 'The mental model' })).toBeInViewport()
+  const sceneBox = (await scene.boundingBox())!
+  expect(sceneBox.x + sceneBox.width).toBeLessThan((await guide.boundingBox())!.x)
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(900)
 })
