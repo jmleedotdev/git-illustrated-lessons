@@ -62,26 +62,19 @@ const branches = computed(() =>
   }),
 )
 
+const replayUnavailable = computed(() => {
+  if (props.reducedMotion) return 'Unavailable with reduced motion.'
+  return props.presentation.kind === 'inspect-remote' ? 'Nothing changes in this step.' : undefined
+})
 const stage = ref<HTMLElement>()
 const busy = ref(false)
 watchPostEffect((onCleanup) => {
   const transition = props.presentation.transition
   const figure = stage.value
   busy.value = false
-  if (!transition || !figure || props.reducedMotion) return
-
-  const reveal = transition.kind === 'add-origin' || transition.kind === 'create-remote'
-  const target =
-    transition.kind === 'add-origin'
-      ? 'origin'
-      : transition.kind === 'create-remote'
-        ? 'hosted-name'
-        : transition.after.remoteSetup?.hosted
-          ? 'github'
-          : 'local'
-  const frames = reveal
-    ? [{ opacity: 0 }, { opacity: 1 }]
-    : [{ opacity: 1 }, { opacity: 0.5 }, { opacity: 1 }]
+  if (!transition || !figure || replayUnavailable.value) return
+  const target = transition.kind === 'add-origin' ? 'origin' : 'hosted-name'
+  const frames = [{ opacity: 0 }, { opacity: 1 }]
   // Reveal only the changed identifier or connection, never animate the commits.
   const animations = Array.from(figure.querySelectorAll(`[data-remote-part="${target}"]`))
     .filter((element) => typeof element.animate === 'function')
@@ -112,14 +105,14 @@ watchPostEffect((onCleanup) => {
       <button
         type="button"
         class="stage-animation-control ml-auto"
-        :disabled="reducedMotion"
-        :aria-describedby="reducedMotion ? 'remote-motion-reason' : undefined"
+        :disabled="!!replayUnavailable"
+        :aria-describedby="replayUnavailable ? 'remote-motion-reason' : undefined"
         @click="$emit('replay')"
       >
         Replay
       </button>
-      <p v-if="reducedMotion" id="remote-motion-reason" class="motion-reason text-label">
-        Unavailable with reduced motion.
+      <p v-if="replayUnavailable" id="remote-motion-reason" class="motion-reason text-label">
+        {{ replayUnavailable }}
       </p>
     </div>
     <svg
@@ -165,7 +158,6 @@ watchPostEffect((onCleanup) => {
         />
         <rect x="10" y="70" width="360" height="245" fill="url(#remote-grid)" />
         <rect
-          :data-remote-part="panel"
           width="380"
           height="330"
           rx="18"
@@ -219,7 +211,7 @@ watchPostEffect((onCleanup) => {
           </g>
         </template>
         <text v-else-if="hosted" data-remote-part="hosted-name" x="18" y="54" font-size="13">
-          alice-example / {{ hosted.name }}
+          {{ hosted.owner }} / {{ hosted.name }}
         </text>
       </g>
       <g v-if="origin" data-remote-part="origin">
@@ -236,14 +228,15 @@ watchPostEffect((onCleanup) => {
       </g>
     </svg>
     <div class="remote-compact story-text">
-      <p data-remote-part="local">
-        <strong>Alice’s computer</strong><br />{{ head }}<br />{{ state.head }} is current · ideas →
+      <p>
+        <strong>Alice’s computer</strong><br />{{ head }}<br />* {{ state.head }} is current · ideas
+        →
         {{ state.branches?.ideas }}
       </p>
       <p v-if="origin" data-remote-part="origin" class="remote-compact-link">
         <InlineText text="`origin` names the GitHub address." />
       </p>
-      <p data-remote-part="github">
+      <p>
         <strong>GitHub</strong
         ><span v-if="hosted" data-remote-part="hosted-name"> / {{ hosted.name }}</span>
       </p>
@@ -259,7 +252,7 @@ watchPostEffect((onCleanup) => {
 .remote-compact {
   display: none;
 }
-@media (max-width: 1100px), (max-height: 699px) {
+@media (max-width: 1100px), (max-height: 760px) {
   .repository-diagram.remote-diagram {
     display: none;
   }
@@ -273,12 +266,11 @@ watchPostEffect((onCleanup) => {
     border-inline-start: var(--border-ink) dashed var(--color-focus);
   }
 }
-@media (width > 1100px) and (max-height: 699px) {
+@media (width > 1100px) and (max-height: 760px) {
   .remote-compact {
     flex: 1;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    line-height: 1.5;
   }
   .remote-compact-link {
     max-width: 18ch;

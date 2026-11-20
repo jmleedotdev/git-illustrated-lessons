@@ -11,6 +11,7 @@ export interface Commit {
 }
 
 interface HostedRepository {
+  readonly owner: string
   readonly name: string
   readonly branches: Readonly<Record<string, string>>
   readonly commits: readonly Commit[]

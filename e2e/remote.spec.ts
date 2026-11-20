@@ -42,9 +42,11 @@ test('navigates both lessons and cancels only the configuration reveal on interr
   const back = page.getByRole('button', { name: 'Back', exact: true })
   const replay = figure.getByRole('button', { name: 'Replay' })
   const hostedName = diagram.getByText('alice-example / git-notes')
-  const dashedLink = diagram.locator('path[d="M405 140H495"]')
+  const originLabel = diagram.getByText('origin', { exact: true })
 
   await expect(back).toBeDisabled()
+  await expect(replay).toBeDisabled()
+  await expect(replay).toHaveAccessibleDescription('Nothing changes in this step.')
   await next.press('Enter')
   await expect(page).toHaveURL(create + '2')
   await expect(figure).toHaveAttribute('aria-busy', 'true')
@@ -55,7 +57,7 @@ test('navigates both lessons and cancels only the configuration reveal on interr
   await expect(page.getByText(/Leave README/)).toHaveText(
     /README.*\.gitignore.*license.*unselected/,
   )
-  await expect(dashedLink).toHaveCount(0)
+  await expect(originLabel).toHaveCount(0)
   await page.getByRole('link', { name: 'Next: Connect local and remote' }).press('Enter')
   await expect(page).toHaveURL(connect + '1')
   await expect(page.getByRole('heading', { name: 'Connect local and remote' })).toBeFocused()
@@ -64,22 +66,21 @@ test('navigates both lessons and cancels only the configuration reveal on interr
   await next.press('Enter')
   await expect(page).toHaveURL(connect + '2')
   await expect(figure).toHaveAttribute('aria-busy', 'true')
-  await expect(dashedLink).toHaveAttribute('stroke-dasharray', '5 5')
-  await expect(dashedLink).not.toHaveAttribute('marker-end', /./)
+  await expect(originLabel).toBeVisible()
+  await expect(diagram).toHaveAccessibleDescription(/dashed line.*not a transfer/)
   await expect(figure.getByText(noTransfer)).toBeVisible()
   await expect(figure).toHaveAttribute('aria-busy', 'false')
   await expect(next).toBeDisabled()
 
+  const c5 = diagram.getByText('c5', { exact: true })
+  const position = await c5.boundingBox()
   await replay.press('Enter')
   await expect(figure).toHaveAttribute('aria-busy', 'true')
-  const c5 = diagram.getByText('c5', { exact: true })
   await expect(c5).toBeVisible()
-  expect(
-    await c5.evaluate((node) => node.parentElement!.getAnimations({ subtree: true }).length),
-  ).toBe(0)
+  expect(await c5.boundingBox()).toEqual(position)
   await page.getByRole('button', { name: 'Step 1: Two repositories' }).press('Enter')
   await expect(figure).toHaveAttribute('aria-busy', 'false')
-  await expect(dashedLink).toHaveCount(0)
+  await expect(originLabel).toHaveCount(0)
   await page.goBack()
   await expect(diagram.getByText('origin', { exact: true })).toBeVisible()
   await expect(figure).toHaveAttribute('aria-busy', 'false')
@@ -104,21 +105,28 @@ test('navigates both lessons and cancels only the configuration reveal on interr
   await expect(hostedName).toHaveCount(0)
 })
 
-test('keeps the scene readable and the timeline in view on a short desktop', async ({ page }) => {
-  await page.setViewportSize({ width: 1200, height: 560 })
-  await page.goto(connect + '2')
-  const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
-  await expect(figure.getByRole('img')).toBeHidden()
-  await expect(figure.getByText(/Alice’s computer.*HEAD → main → c5/)).toHaveCSS(
-    'font-size',
-    '16px',
-  )
-  await expect(figure.getByText(noTransfer)).toBeInViewport()
-  await expect(page.getByRole('button', { name: 'Step 2: Add origin' })).toBeInViewport({
-    ratio: 1,
+for (const [width, height] of [
+  [1200, 560],
+  [1280, 720],
+] as const) {
+  test(`keeps the scene readable and the timeline in view at ${width}×${height}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height })
+    await page.goto(connect + '2')
+    const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
+    await expect(figure.getByRole('img')).toBeHidden()
+    await expect(figure.getByText(/Alice’s computer.*HEAD → main → c5/)).toHaveCSS(
+      'font-size',
+      '16px',
+    )
+    await expect(figure.getByText(noTransfer)).toBeInViewport()
+    await expect(page.getByRole('button', { name: 'Step 2: Add origin' })).toBeInViewport({
+      ratio: 1,
+    })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
   })
-  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(1200)
-})
+}
 
 for (const width of [320, 390, 720]) {
   test(`keeps diagram text and focus clear of the bottom bar at ${width}px`, async ({ page }) => {
@@ -127,6 +135,7 @@ for (const width of [320, 390, 720]) {
     await page.goto(connect + '2')
     const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
     await expect(figure.getByText(/Alice’s computer.*HEAD → main → c5/)).toBeVisible()
+    await expect(figure.getByText(/\* main is current/)).toBeVisible()
     await expect(figure.getByText(/names the GitHub address/)).toBeVisible()
     await expect(figure).toHaveAccessibleDescription(/first parent c4 and second parent c3/)
     await expect(figure.getByRole('img')).toBeHidden()

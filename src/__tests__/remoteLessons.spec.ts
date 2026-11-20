@@ -19,7 +19,13 @@ const notesD = {
   contents: 'A little less magic.\nGit keeps a history.\nOnly staged contents go into a commit.\n',
 }
 const ideas = { name: 'ideas.txt', contents: 'Draw the history as a map.\n' }
-const emptyHosted = { name: 'git-notes', commits: [], files: [], branches: {} }
+const emptyHosted = {
+  owner: 'alice-example',
+  name: 'git-notes',
+  commits: [],
+  files: [],
+  branches: {},
+}
 
 function expectCleanLocalHistory(state: RepositoryState) {
   expect(state.initialized).toBe(true)

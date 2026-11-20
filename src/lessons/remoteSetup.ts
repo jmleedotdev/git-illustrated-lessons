@@ -21,7 +21,13 @@ const beforeCreation: RepositoryState = {
   ...local,
   remoteSetup: { hosted: null, origin: null, upstream: null },
 }
-const emptyHosted = { name: 'git-notes', branches: {}, commits: [], files: [] }
+const emptyHosted = {
+  owner: 'alice-example',
+  name: 'git-notes',
+  branches: {},
+  commits: [],
+  files: [],
+}
 const unconnected: RemoteSetup = { hosted: emptyHosted, origin: null, upstream: null }
 const afterCreation: RepositoryState = { ...local, remoteSetup: unconnected }
 
@@ -30,7 +36,9 @@ const localDiagram =
 const beforeCreationDiagram = `${localDiagram} There is no hosted repository yet, no configured remote, and no upstream.`
 const emptyDiagram = 'GitHub’s `git-notes` has no commits, files, or `main` reference.'
 const emptyUnconnectedDiagram = `${localDiagram} ${emptyDiagram} There is no configured remote or upstream.`
-const exampleAddress = 'https://github.com/alice-example/git-notes.git'
+const exampleAddress = `https://github.com/${emptyHosted.owner}/${emptyHosted.name}.git`
+const prerequisites =
+  'To follow along independently, you need Git installed, a configured commit identity, a GitHub account, and working HTTPS authentication.'
 const connected: RepositoryState = {
   ...local,
   remoteSetup: { ...unconnected, origin: exampleAddress },
@@ -50,8 +58,7 @@ export const createRemoteRepository = freezeLesson({
     {
       label: 'Start local',
       title: 'Alice’s history is still local.',
-      story:
-        'Alice starts with a clean checkout of `main`. Bob can see the notes and ideas on her computer, but she hasn’t created a repository on GitHub yet. To follow along independently, you need Git installed, a configured commit identity, a GitHub account, and working HTTPS authentication.',
+      story: `Alice starts with a clean checkout of \`main\`. Bob can see the notes and ideas on her computer, but she hasn’t created a repository on GitHub yet. ${prerequisites}`,
       idea: 'The files Alice sees and the history Git records are local to her computer.',
       change: 'Nothing changes. There is no GitHub repository yet, no `origin`, and no upstream.',
       diagram: beforeCreationDiagram,
@@ -88,8 +95,7 @@ export const connectLocalAndRemote = freezeLesson({
     {
       label: 'Two repositories',
       title: 'There’s a place for the history now.',
-      story:
-        'Bob can see `git-notes` on GitHub, but it has no files. Alice’s local Git repository does not yet know its address. To follow along independently, you need Git installed, a configured commit identity, a GitHub account, and working HTTPS authentication.',
+      story: `Bob can see \`git-notes\` on GitHub, but it has no files. Alice’s local Git repository does not yet know its address. ${prerequisites}`,
       idea: 'The hosted repository can exist before Alice configures a local remote for it.',
       change: 'Nothing changes. GitHub is empty and Alice’s five commits remain local.',
       diagram: emptyUnconnectedDiagram,
