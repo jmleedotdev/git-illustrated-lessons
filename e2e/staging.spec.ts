@@ -30,23 +30,31 @@ test('plays the opening step at launch and when choosing Next lesson', async ({ 
   await expect(scene).toHaveAttribute('aria-busy', 'false')
 })
 
-test('paces the Edit and inspect status pulse like the initialization caption transition', async ({
+test('fully fades out the Edit and inspect status caption before restoring it', async ({
   page,
 }) => {
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  const caption = scene.getByRole('img', { name: sceneName }).getByText('Version B · Untracked')
   await page.goto('/#/edit-and-inspect/1')
   await page.getByRole('button', { name: 'Next', exact: true }).click()
   await expect(scene).toHaveAttribute('aria-busy', 'true')
   await expect
     .poll(() =>
-      scene.evaluate(
-        (figure) =>
-          figure.getAnimations({ subtree: true })[0]?.effect?.getComputedTiming().duration,
-      ),
+      caption.evaluate((label) => label.getAnimations()[0]?.effect?.getComputedTiming().duration),
     )
-    .toBe(1030)
+    .toBe(1600)
+  await expect(caption).toHaveCSS('opacity', '0')
   await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await expect(caption).toHaveCSS('opacity', '1')
   await expect(page).toHaveURL(/#\/edit-and-inspect\/2$/)
+
+  const replay = scene.getByRole('button', { name: 'Replay' })
+  await replay.click()
+  await expect(caption).toHaveCSS('opacity', '0')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect(replay).toBeDisabled()
+  await expect(scene).toHaveAttribute('aria-busy', 'false')
+  await expect(caption).toHaveCSS('opacity', '1')
 })
 
 test('opens every editing and staging step in its completed state', async ({ page }) => {

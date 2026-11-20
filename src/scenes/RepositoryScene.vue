@@ -19,6 +19,7 @@ const copy = shallowRef<FileContents>()
 const before = shallowRef<RepositoryState>()
 const sceneDuration = 1030
 const captionExitDuration = 430
+const statusFadeDuration = 1600
 const zoneGap = 310
 const pagePosition = (zone: number) => `translate(${27 + zone * zoneGap},93)`
 const busy = ref(false)
@@ -124,7 +125,16 @@ watch(
     if (transition.kind === 'edit' && fileGraphic.value) changingLabels.push(fileGraphic.value)
     if (transition.kind === 'status') {
       const statusLabels = Array.from(stage.value?.querySelectorAll('[data-scene-caption]') ?? [])
-      await play(statusLabels, [{ opacity: 1 }, { opacity: 0.45 }, { opacity: 1 }])
+      await play(
+        statusLabels,
+        [
+          { opacity: 1 },
+          { opacity: 0, offset: 0.35 },
+          { opacity: 0, offset: 0.65 },
+          { opacity: 1 },
+        ],
+        statusFadeDuration,
+      )
     } else if (changingLabels.length) {
       await play(changingLabels, [{ opacity: 1 }, { opacity: 0.15 }], captionExitDuration)
       if (cancelled) return

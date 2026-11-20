@@ -221,7 +221,7 @@ The prototype calls those successive notes.txt contents B, C, and D. Such diagra
 - The lesson’s Back, Next, Previous lesson, and Next lesson controls play the authored transition for the destination step. On initial load, the course’s opening step also plays when entered at the root or its exact hash. Other deep links, selection from Lessons or numbered steps, and browser-history navigation show the completed destination state immediately.
 - Replay repeats the current step's defined before-to-after transition without navigating or advancing afterward. It works even when the step was reached directly and no previous animation ran.
 - Navigation can interrupt motion without waiting. Cancel superseded transitions and settle correctly at the new destination; delayed callbacks from old transitions must not overwrite the current selection or scene.
-- Neither normal nor reduced-motion playback auto-advances. Use the existing initialization caption transition (1.03 seconds total) as the shared duration for the finite repository-scene animations. This does not change the separate pauseable inspection loop. Choreography is reviewed at the visual gates; prototype fades are not final animation approval.
+- Neither normal nor reduced-motion playback auto-advances. Use the existing initialization caption transition (1.03 seconds total) as the default duration for finite repository-scene animations. The `git status` caption refresh in Edit and inspect is an exception: it fades all the way out, pauses briefly, and fades back in over 1.6 seconds. The separate pauseable inspection loop is unchanged. Choreography is reviewed at the visual gates; prototype fades are not final animation approval.
 
 ### 11. Responsive layout, zoom, and accessibility
 
