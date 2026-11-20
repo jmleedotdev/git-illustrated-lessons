@@ -37,8 +37,6 @@ const beforeCreationDiagram = `${localDiagram} There is no hosted repository yet
 const emptyDiagram = 'GitHub’s `git-notes` has no commits, files, or `main` reference.'
 const emptyUnconnectedDiagram = `${localDiagram} ${emptyDiagram} There is no configured remote or upstream.`
 const exampleAddress = `https://github.com/${emptyHosted.owner}/${emptyHosted.name}.git`
-const prerequisites =
-  'To follow along independently, you need Git installed, a configured commit identity, a GitHub account, and working HTTPS authentication.'
 const connected: RepositoryState = {
   ...local,
   remoteSetup: { ...unconnected, origin: exampleAddress },
@@ -58,7 +56,8 @@ export const createRemoteRepository = freezeLesson({
     {
       label: 'Start local',
       title: 'Alice’s history is still local.',
-      story: `Alice starts with a clean checkout of \`main\`. Bob can see the notes and ideas on her computer, but she hasn’t created a repository on GitHub yet. ${prerequisites}`,
+      story:
+        'Alice starts with a clean checkout of `main`. Bob can see the notes and ideas on her computer, but she hasn’t created a repository on GitHub yet.',
       idea: 'The files Alice sees and the history Git records are local to her computer.',
       change: 'Nothing changes. There is no GitHub repository yet, no `origin`, and no upstream.',
       diagram: beforeCreationDiagram,
@@ -95,7 +94,8 @@ export const connectLocalAndRemote = freezeLesson({
     {
       label: 'Two repositories',
       title: 'There’s a place for the history now.',
-      story: `Bob can see \`git-notes\` on GitHub, but it has no files. Alice’s local Git repository does not yet know its address. ${prerequisites}`,
+      story:
+        'Bob can see `git-notes` on GitHub, but it has no files. Alice’s local Git repository does not yet know its address.',
       idea: 'The hosted repository can exist before Alice configures a local remote for it.',
       change: 'Nothing changes. GitHub is empty and Alice’s five commits remain local.',
       diagram: emptyUnconnectedDiagram,
@@ -149,7 +149,8 @@ export const pushTheWork = freezeLesson({
     {
       label: 'Ready to push',
       title: 'Git knows where to send the history.',
-      story: `Alice’s working directory and staging area match the merge commit on \`main\`. Bob checks GitHub: \`git-notes\` is still empty, even though Alice has configured \`origin\`. ${prerequisites}`,
+      story:
+        'Alice’s working directory and staging area match the merge commit on `main`. Bob checks GitHub: `git-notes` is still empty, even though Alice has configured `origin`.',
       idea: 'Knowing the address is not the same as publishing history.',
       change: 'No history has been sent. GitHub is empty, and local `main` has no upstream.',
       diagram: `${localDiagram} ${originDiagram} ${emptyDiagram} No upstream is configured.`,
