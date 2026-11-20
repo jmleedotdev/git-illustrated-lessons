@@ -16,6 +16,10 @@ Single-context: root `GLOSSARY.md` and `.agent-docs/adr/`.
 Before exploring domain behavior or proposing changes, read
 `.agent-docs/agents/domain.md`.
 
+## Coding standards
+
+Before implementing or reviewing changes, read [CODING_STANDARDS.md](CODING_STANDARDS.md).
+
 ## Lesson UI
 
 Before editing, read the [revised A approval](.scratch/git-visual-guide/issues/02-representative-lesson.md#answer)
