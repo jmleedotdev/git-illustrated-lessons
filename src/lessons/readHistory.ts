@@ -3,9 +3,9 @@ import { freezeLesson, type RepositoryState } from './lesson'
 import { newerNote } from './notes'
 
 const staged: RepositoryState = { ...afterFirstCommit, staged: [newerNote] }
-const recorded: RepositoryState = {
+export const afterSecondCommit: RepositoryState = {
   ...staged,
-  branchTip: 'c2',
+  branches: { main: 'c2' },
   commits: [...staged.commits, { id: 'c2', parents: ['c1'], snapshot: staged.staged }],
 }
 
@@ -55,7 +55,7 @@ export const readHistory = freezeLesson({
       idea: 'The arrow from `c2` points to its only parent, `c1`. Each sphere is a complete repository snapshot.',
       change:
         '`HEAD` still points to `main`, which advances to `c2`. The working directory and staging area both match `c2`, so there are no uncommitted changes.',
-      transition: { kind: 'commit', before: staged, after: recorded },
+      transition: { kind: 'commit', before: staged, after: afterSecondCommit },
     },
     {
       label: 'Log',
@@ -66,7 +66,7 @@ export const readHistory = freezeLesson({
       idea: 'Reading history leaves the working directory, staging area, and current branch alone.',
       change:
         'History shows `c2` followed by its parent `c1`, which has no parent. `HEAD` stays on `main` at `c2`; the working directory and staging area still match `c2`.',
-      transition: { kind: 'log', before: recorded, after: recorded },
+      transition: { kind: 'log', before: afterSecondCommit, after: afterSecondCommit },
     },
   ],
 })

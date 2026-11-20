@@ -90,7 +90,7 @@ it('records only the staged contents in the root commit without clearing staging
       ],
     },
   ])
-  expect(recorded.branchTip).toBe('c1')
+  expect(recorded.branches).toEqual({ main: 'c1' })
   expect(recorded.staged).toEqual(opening.staged)
   expect(recorded.working).toEqual(opening.working)
 })
@@ -106,12 +106,12 @@ it('opens history independently at c1 and ends clean after recording and reading
 
   player.next()
   expect(player.presentation.value.state).toMatchObject({
-    branchTip: 'c1',
+    branches: { main: 'c1' },
     staged: [{ version: 'C' }],
   })
   player.next()
   const recorded = player.presentation.value.state
-  expect(recorded.branchTip).toBe('c2')
+  expect(recorded.branches).toEqual({ main: 'c2' })
   expect(recorded.commits[1]).toEqual({
     id: 'c2',
     parents: ['c1'],
@@ -133,4 +133,61 @@ it('opens history independently at c1 and ends clean after recording and reading
   expect(player.presentation.value.state).toEqual(opening)
   player.openLesson('record-a-commit')
   expect(player.presentation.value.state.commits).toEqual([])
+})
+
+it('creates a second reference to c2 without switching or copying the checkout', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/create-and-switch-branches/1')
+  expect(player.location.value.slug).toBe('create-and-switch-branches')
+  const { before, after } = player.step.value.transition
+  expect(before).toMatchObject({ head: 'main', branches: { main: 'c2' } })
+  expect(before.branches).toEqual({ main: 'c2' })
+  expect(before.commits.map(({ id, parents }) => [id, parents])).toEqual([
+    ['c1', []],
+    ['c2', ['c1']],
+  ])
+  expect(before.staged).toEqual(before.commits[1]?.snapshot)
+  expect(before.working).toEqual([{ ...before.staged[0], status: 'tracked' }])
+  expect(after).toEqual({ ...before, branches: { main: 'c2', ideas: 'c2' } })
+  expect(Object.isFrozen(before.branches)).toBe(true)
+  expect(Object.isFrozen(before.commits[1]?.snapshot[0])).toBe(true)
+})
+
+it('advances only ideas and restores the clean main checkout without losing c3', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/create-and-switch-branches/1')
+  const created = player.presentation.value.state
+  player.next()
+  const switched = player.presentation.value.state
+  expect(switched).toEqual({ ...created, head: 'ideas' })
+
+  player.next()
+  const edited = player.presentation.value.state
+  const idea = { name: 'ideas.txt', contents: 'Draw the history as a map.\n' }
+  expect(edited.working).toEqual([...switched.working, { ...idea, status: 'untracked' }])
+  expect(edited.staged).toEqual(switched.staged)
+  player.next()
+  const staged = player.presentation.value.state
+  expect(staged.staged).toEqual([...switched.staged, idea])
+  expect(staged.commits).toEqual(switched.commits)
+
+  player.next()
+  const recorded = player.presentation.value.state
+  expect(recorded.head).toBe('ideas')
+  expect(recorded.branches).toEqual({ main: 'c2', ideas: 'c3' })
+  expect(recorded.commits).toEqual([
+    ...switched.commits,
+    { id: 'c3', parents: ['c2'], snapshot: [...switched.staged, idea] },
+  ])
+  player.next()
+  const restored = player.presentation.value.state
+  expect(restored).toEqual({
+    ...recorded,
+    head: 'main',
+    working: created.working,
+    staged: created.staged,
+  })
+  player.openLesson('create-and-switch-branches')
+  expect(player.presentation.value.state).toEqual(created)
+  expect(player.presentation.value.state.branches).toEqual({ main: 'c2', ideas: 'c2' })
 })

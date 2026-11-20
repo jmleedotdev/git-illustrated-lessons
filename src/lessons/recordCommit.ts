@@ -3,7 +3,7 @@ import { freezeLesson, type RepositoryState } from './lesson'
 
 export const afterFirstCommit: RepositoryState = {
   ...selected,
-  branchTip: 'c1',
+  branches: { main: 'c1' },
   commits: [{ id: 'c1', parents: [], snapshot: selected.staged }],
 }
 

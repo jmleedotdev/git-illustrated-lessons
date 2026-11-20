@@ -1,4 +1,5 @@
 import { chooseWhatToStage } from './chooseWhatToStage'
+import { createAndSwitchBranches } from './createAndSwitchBranches'
 import { editAndInspect } from './editAndInspect'
 import type { Lesson } from './lesson'
 import { readHistory } from './readHistory'
@@ -11,4 +12,5 @@ export const lessons: readonly Lesson[] = Object.freeze([
   chooseWhatToStage,
   recordCommit,
   readHistory,
+  createAndSwitchBranches,
 ])

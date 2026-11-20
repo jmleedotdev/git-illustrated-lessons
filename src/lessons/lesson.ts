@@ -17,9 +17,13 @@ export interface RepositoryState {
     readonly status: 'existing' | 'untracked' | 'tracked'
   })[]
   readonly staged: readonly FileContents[]
-  /** Commit the current branch points to, when it has one. */
-  readonly branchTip?: string
+  /** Named references with recorded tips. An unborn branch has no entry. */
+  readonly branches?: Readonly<Record<string, string>>
   readonly commits: readonly Commit[]
+}
+
+export function checkoutTip(state: RepositoryState) {
+  return state.head ? state.branches?.[state.head] : undefined
 }
 
 export interface LessonStep {
@@ -31,7 +35,17 @@ export interface LessonStep {
   readonly idea: string
   readonly change: string
   readonly transition: Readonly<{
-    kind: 'open-folder' | 'initialize' | 'inspect' | 'edit' | 'status' | 'stage' | 'commit' | 'log'
+    kind:
+      | 'open-folder'
+      | 'initialize'
+      | 'inspect'
+      | 'edit'
+      | 'status'
+      | 'stage'
+      | 'commit'
+      | 'log'
+      | 'create-branch'
+      | 'switch-branch'
     before: RepositoryState
     after: RepositoryState
   }>
