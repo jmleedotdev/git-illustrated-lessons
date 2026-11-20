@@ -135,6 +135,87 @@ it('opens history independently at c1 and ends clean after recording and reading
   expect(player.presentation.value.state.commits).toEqual([])
 })
 
+it('opens Bring work together independently with a clean main and the ideas snapshot intact', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/bring-work-together/1')
+  expect(player.location.value.slug).toBe('bring-work-together')
+  expect(player.presentation.value.transition).toBeNull()
+  const opening = player.presentation.value.state
+  const earlier = {
+    name: 'notes.txt',
+    version: 'B',
+    contents: 'A little less magic.\nGit keeps a history.\n',
+  }
+  const note = {
+    ...earlier,
+    version: 'C',
+    contents: earlier.contents + 'Only selected contents go in.\n',
+  }
+  expect(opening).toEqual({
+    initialized: true,
+    head: 'main',
+    branches: { main: 'c2', ideas: 'c3' },
+    working: [{ ...note, status: 'tracked' }],
+    staged: [note],
+    commits: [
+      { id: 'c1', parents: [], snapshot: [earlier] },
+      { id: 'c2', parents: ['c1'], snapshot: [note] },
+      {
+        id: 'c3',
+        parents: ['c2'],
+        snapshot: [note, { name: 'ideas.txt', contents: 'Draw the history as a map.\n' }],
+      },
+    ],
+  })
+})
+
+it('edits, stages, then records diverging notes on main without moving ideas', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/bring-work-together/1')
+  const opening = player.presentation.value.state
+  const revised = {
+    name: 'notes.txt',
+    version: 'D',
+    contents:
+      'A little less magic.\nGit keeps a history.\nOnly staged contents go into a commit.\n',
+  }
+  player.next()
+  const edited = player.presentation.value.state
+  expect(edited).toEqual({ ...opening, working: [{ ...revised, status: 'tracked' }] })
+  player.next()
+  const staged = player.presentation.value.state
+  expect(staged).toEqual({ ...edited, staged: [revised] })
+  player.next()
+  expect(player.presentation.value.state).toEqual({
+    ...staged,
+    branches: { main: 'c4', ideas: 'c3' },
+    commits: [...opening.commits, { id: 'c4', parents: ['c2'], snapshot: [revised] }],
+  })
+})
+
+it('joins both histories in order and ends with a clean main without deleting ideas', () => {
+  const player = createPlayer(lessons)
+  player.restore('#/bring-work-together/4')
+  const diverged = player.presentation.value.state
+  player.next()
+  expect(player.step.value.action.text).toBe('git merge ideas')
+  const merged = player.presentation.value.state
+  const combined = [diverged.commits[3]!.snapshot[0]!, diverged.commits[2]!.snapshot[1]!]
+  expect(merged).toEqual({
+    ...diverged,
+    branches: { main: 'c5', ideas: 'c3' },
+    commits: [...diverged.commits, { id: 'c5', parents: ['c4', 'c3'], snapshot: combined }],
+    working: combined.map((file) => ({ ...file, status: 'tracked' })),
+    staged: combined,
+  })
+
+  const direct = createPlayer(lessons)
+  direct.restore('#/bring-work-together/5')
+  expect(direct.presentation.value).toMatchObject({ state: merged, transition: null })
+  direct.replay()
+  expect(direct.presentation.value.transition).toMatchObject({ before: diverged, after: merged })
+})
+
 it('creates a second reference to c2 without switching or copying the checkout', () => {
   const player = createPlayer(lessons)
   player.restore('#/create-and-switch-branches/1')

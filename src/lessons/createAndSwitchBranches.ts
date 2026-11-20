@@ -4,7 +4,7 @@ import { afterSecondCommit } from './readHistory'
 const opening = afterSecondCommit
 const created: RepositoryState = { ...opening, branches: { main: 'c2', ideas: 'c2' } }
 const switched: RepositoryState = { ...created, head: 'ideas' }
-const ideaFile = { name: 'ideas.txt', contents: 'Draw the history as a map.\n' }
+export const ideaFile = { name: 'ideas.txt', contents: 'Draw the history as a map.\n' }
 const edited: RepositoryState = {
   ...switched,
   working: [...switched.working, { ...ideaFile, status: 'untracked' }],
@@ -19,7 +19,7 @@ const recorded: RepositoryState = {
   branches: { main: 'c2', ideas: 'c3' },
   commits: [...staged.commits, { id: 'c3', parents: ['c2'], snapshot: staged.staged }],
 }
-const restored: RepositoryState = {
+export const afterReturningToMain: RepositoryState = {
   ...recorded,
   head: 'main',
   working: opening.working,
@@ -105,7 +105,7 @@ export const createAndSwitchBranches = freezeLesson({
       idea: 'Switching restores the selected snapshot. It does not delete the commit you left.',
       change:
         '`HEAD` points to `main` at `c2`. The working directory and staging area now contain only `notes.txt`. `ideas` still points to `c3`, which keeps `ideas.txt` and links back to `c2`.',
-      transition: { kind: 'switch-branch', before: recorded, after: restored },
+      transition: { kind: 'switch-branch', before: recorded, after: afterReturningToMain },
     },
   ],
 })

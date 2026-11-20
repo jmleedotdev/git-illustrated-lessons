@@ -9,12 +9,14 @@ import {
 import type { Presentation } from '../player/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import CommitSphere from './CommitSphere.vue'
+import { describeParents } from './describeParents'
 import SnapshotInspector from './SnapshotInspector.vue'
 import FoldedPage from './FoldedPage.vue'
 import ScenePlatform from './ScenePlatform.vue'
 
 const props = defineProps<{
   presentation: Presentation
+  finalCommitCount: number
   description: string
   reducedMotion: boolean
 }>()
@@ -46,13 +48,20 @@ const branchHistory = computed(
   () => Object.keys(props.presentation.state.branches ?? {}).length > 1,
 )
 const sphereRadius = 42
-const branchBounds = { x: -20, y: -54, width: 650, height: 447 }
-const branchViewBox = Object.values(branchBounds).join(' ')
-// Revised A's shared path and raised ideas commit, without the unused merge space.
-const branchPositions = [
+const wideBranchHistory = computed(() => branchHistory.value && props.finalCommitCount > 3)
+const branchBounds = computed(() =>
+  wideBranchHistory.value
+    ? { x: -50, y: -65, width: 1060, height: 475 }
+    : { x: -20, y: -54, width: 650, height: 447 },
+)
+const branchViewBox = computed(() => Object.values(branchBounds.value).join(' '))
+// Revised A's shared path, raised ideas lane, and merge on the main lane.
+const branchPositions: readonly { x: number; y: number; labelOffset?: number }[] = [
   { x: 115, y: 260 },
   { x: 305, y: 260 },
-  { x: 485, y: 50 },
+  { x: 485, y: 50, labelOffset: 24 }, // Clear the diagonal under the raised node.
+  { x: 610, y: 260 },
+  { x: 835, y: 260 },
 ]
 function spherePosition(index: number) {
   return (branchHistory.value && branchPositions[index]) || { x: 724 + index * 166, y: 238 }
@@ -69,47 +78,65 @@ const branchMarkers = computed(() =>
     return { name, x: x + offset, y: y - 96, offset, width: index === 0 ? 80 : 86 }
   }),
 )
-function parentPath(fromIndex: number, toIndex: number) {
+function parentEdge(fromIndex: number, toIndex: number) {
   const from = spherePosition(fromIndex)
   const to = spherePosition(toIndex)
   const length = Math.hypot(to.x - from.x, to.y - from.y)
   const dx = ((to.x - from.x) / length) * sphereRadius
   const dy = ((to.y - from.y) / length) * sphereRadius
-  return `M${from.x + dx} ${from.y + dy}L${to.x - dx} ${to.y - dy}`
+  const start = { x: from.x + dx, y: from.y + dy }
+  const end = { x: to.x - dx, y: to.y - dy }
+  const angle = (Math.atan2(start.y - end.y, start.x - end.x) * 180) / Math.PI
+  return {
+    path: `M${start.x} ${start.y}L${end.x} ${end.y}`,
+    label: `translate(${(start.x + end.x) / 2},${(start.y + end.y) / 2}) rotate(${angle})`,
+  }
 }
 const historyLinks = computed(() =>
   state.value.commits.flatMap((commit, index, commits) =>
-    commit.parents.flatMap((parent) => {
+    commit.parents.flatMap((parent, order) => {
       const target = commits.findIndex(({ id }) => id === parent)
-      return target < 0 ? [] : [{ key: `${commit.id}:${parent}`, path: parentPath(index, target) }]
+      return target < 0
+        ? []
+        : [
+            {
+              key: `${commit.id}:${parent}`,
+              child: commit.id,
+              ...parentEdge(index, target),
+              number: commit.parents.length > 1 ? order + 1 : undefined,
+            },
+          ]
     }),
   ),
 )
 
 function checkoutFiles(repository: RepositoryState) {
-  const snapshot = repository.commits.find(({ id }) => id === checkoutTip(repository))?.snapshot
+  const tip = checkoutTip(repository)
+  const snapshot = repository.commits.find(({ id }) => id === tip)?.snapshot
+  const includesContents = (files: readonly FileContents[] | undefined, file: FileContents) =>
+    files?.some(({ name, contents }) => name === file.name && contents === file.contents)
+  function workingCaption(file: RepositoryState['working'][number]) {
+    if (file.status === 'existing') return 'Existing file'
+    if (file.status === 'untracked') return 'Untracked'
+    if (!includesContents(repository.staged, file)) return 'Unstaged edit'
+    if (!tip) return 'Tracked'
+    return includesContents(snapshot, file) ? 'Clean' : 'Matches staging'
+  }
   return [
     {
       key: 'working',
       label: 'Working directory',
-      files: repository.working.map((file) => ({
-        ...file,
-        caption: file.status === 'untracked' ? 'Untracked' : 'Tracked',
-      })),
+      files: repository.working.map((file) => ({ ...file, caption: workingCaption(file) })),
     },
     {
       key: 'staged',
       label: 'Staging area',
       files: repository.staged.map((file) => ({
         ...file,
-        caption: snapshot?.some(
-          (recorded) => recorded.name === file.name && recorded.contents === file.contents,
-        )
-          ? `Matches ${checkoutTip(repository)}`
-          : 'Staged',
+        caption: includesContents(snapshot, file) ? `Matches ${tip}` : 'Staged',
       })),
     },
-  ]
+  ] as const
 }
 const checkout = computed(() => checkoutFiles(state.value))
 const branchDescription = computed(() =>
@@ -118,7 +145,7 @@ const branchDescription = computed(() =>
       const refs = branchesAt(state.value, commit.id).map(
         (name) => `${name}${name === state.value.head ? ' (current branch)' : ''}`,
       )
-      const parent = commit.parents.length ? 'parent ' + commit.parents.join(', ') : 'no parent'
+      const parent = describeParents(commit.parents)
       return `${commit.id}: ${parent}; records ${commit.snapshot.map(({ name }) => name).join(', ')}${refs.length ? '; referenced by ' + refs.join(' and ') : ''}.`
     })
     .join(' '),
@@ -131,33 +158,23 @@ function gitStatus(state: RepositoryState) {
 }
 
 function describeZones(state: RepositoryState) {
-  const [working] = state.working
-  const [staged] = state.staged
-  const status = { existing: 'Existing file', untracked: 'Untracked', tracked: 'Tracked' }
-  const tip = state.commits.find(({ id }) => id === checkoutTip(state))
-  const recorded = tip?.snapshot.find(({ name }) => name === staged?.name)
-  const stagedMatchesTip = staged && recorded?.contents === staged.contents
-  const workingStatus =
-    working?.status === 'tracked' && staged && working.contents !== staged.contents
-      ? 'Unstaged edit'
-      : working?.status === 'tracked' && tip
-        ? stagedMatchesTip
-          ? 'Clean'
-          : 'Matches staging'
-        : working && status[working.status]
+  const [workingZone, stagingZone] = checkoutFiles(state)
+  const [working] = workingZone.files
+  const [staged] = stagingZone.files
+  const tip = checkoutTip(state)
   return [
     {
-      name: 'Working directory',
+      name: workingZone.label,
       fill: 'var(--color-peach)',
       file: working,
-      caption: working ? versionCaption(working.version, workingStatus ?? '') : 'Empty',
+      caption: working ? versionCaption(working.version, working.caption) : 'Empty',
     },
     {
-      name: 'Staging area',
+      name: stagingZone.label,
       fill: 'var(--color-slate)',
       file: staged,
       caption: staged
-        ? versionCaption(staged.version, stagedMatchesTip ? `Matches ${tip?.id}` : 'Staged')
+        ? versionCaption(staged.version, staged.caption)
         : state.initialized
           ? 'Empty'
           : 'Not set up yet',
@@ -165,7 +182,7 @@ function describeZones(state: RepositoryState) {
     {
       name: 'Recorded history',
       fill: 'var(--color-terracotta)',
-      caption: tip ? `On ${tip.id}` : 'No commits',
+      caption: tip ? `On ${tip}` : 'No commits',
     },
   ]
 }
@@ -180,6 +197,11 @@ async function playBranchChange(
   revealAfter: () => Promise<boolean>,
 ) {
   const { before: from, after: to } = transition
+  const readout = stage.value?.querySelector('[data-head-readout]')
+  if (transition.kind === 'status' && readout) {
+    await play([readout], [{ opacity: 1 }, { opacity: 0.35 }, { opacity: 1 }], sceneDuration)
+    return
+  }
   const readoutChanged = gitStatus(from) !== gitStatus(to)
   const nextCheckout = checkoutFiles(to)
   const changedFiles = checkoutFiles(from).flatMap(({ key, files }, index) => {
@@ -213,26 +235,40 @@ async function playBranchChange(
   const tipChanged = checkoutTip(from) !== checkoutTip(to)
   const leaving = affected()
   if (transition.kind === 'create-branch' || tipChanged) leaving.push(...checkoutHighlights())
-  if (transition.kind === 'edit') {
-    const working = stage.value?.querySelector('[data-checkout-zone="working"]')
-    if (working) leaving.push(working)
-  }
   await play(leaving, [{ opacity: 1 }, { opacity: 0.35 }], captionExitDuration)
   if (!(await revealAfter())) return
 
   // Move only a reference that actually changed targets; a HEAD switch changes emphasis instead.
   const moved = markers.find(([name, tip]) => from.branches?.[name] && from.branches[name] !== tip)
   const marker = moved && stage.value?.querySelector(`[data-branch-marker="${moved[0]}"]`)
+  const created = to.commits.find(({ id }) => !from.commits.some((commit) => commit.id === id))
+  const newSnapshots = created
+    ? Array.from(stage.value?.querySelectorAll(`[data-commit-id="${created.id}"]`) ?? [])
+    : []
+  const newLinks = created
+    ? Array.from(stage.value?.querySelectorAll(`[data-history-child="${created.id}"]`) ?? [])
+    : []
   const entering = affected().filter((element) => element !== marker)
-  if (tipChanged) entering.push(...checkoutHighlights())
-  const fades = play(entering, [{ opacity: 0.25 }, { opacity: 1 }], captionEnterDuration)
-  if (!marker || !moved) return fades
+  if (tipChanged)
+    entering.push(...checkoutHighlights().filter((node) => !newSnapshots.includes(node)))
+  const reveal = [
+    play([...entering, ...newLinks], [{ opacity: 0.25 }, { opacity: 1 }], captionEnterDuration),
+    play(
+      newSnapshots,
+      [
+        { opacity: 0.25, transform: 'translateY(-14px)' },
+        { opacity: 1, transform: 'translateY(0)' },
+      ],
+      captionEnterDuration,
+    ),
+  ]
+  if (!marker || !moved) return Promise.all(reveal)
 
   const [name, tip] = moved
   const origin = spherePosition(from.commits.findIndex(({ id }) => id === from.branches?.[name]))
   const destination = spherePosition(to.commits.findIndex(({ id }) => id === tip))
   await Promise.all([
-    fades,
+    ...reveal,
     play(
       [marker],
       [
@@ -452,7 +488,11 @@ watch(
         branchHistory ? 'scene-description branch-relationships' : 'scene-description'
       "
       class="repository-diagram"
-      :class="{ 'has-history': presentation.state.commits.length, 'branch-graph': branchHistory }"
+      :class="{
+        'has-history': presentation.state.commits.length,
+        'branch-graph': branchHistory,
+        'merge-graph': wideBranchHistory,
+      }"
     >
       <title id="scene-title">
         Repository scene:
@@ -525,15 +565,25 @@ watch(
         </g>
       </template>
       <g v-if="state.commits.length">
-        <path
-          v-for="link in historyLinks"
-          :key="link.key"
-          :d="link.path"
-          fill="none"
-          class="stroke-charcoal"
-          stroke-width="2"
-          marker-end="url(#repository-parent-arrow)"
-        />
+        <g v-for="link in historyLinks" :key="link.key" :data-history-child="link.child">
+          <path
+            :d="link.path"
+            fill="none"
+            class="stroke-charcoal"
+            stroke-width="2"
+            marker-end="url(#repository-parent-arrow)"
+          />
+          <text
+            v-if="link.number"
+            :transform="link.label"
+            y="-6"
+            class="parent-number fill-ink font-bold"
+            font-size="17"
+            text-anchor="middle"
+          >
+            parent {{ link.number }}
+          </text>
+        </g>
         <g
           v-for="(commit, index) in state.commits"
           :key="commit.id"
@@ -541,10 +591,15 @@ watch(
           :transform="`translate(${spherePosition(index).x},${spherePosition(index).y})`"
         >
           <g
+            :data-commit-id="commit.id"
             :data-new-commit="commit.id === currentTip ? '' : undefined"
             :data-current-snapshot="branchHistory && commit.id === currentTip ? '' : undefined"
           >
-            <CommitSphere :commit="commit" :current="commit.id === currentTip" />
+            <CommitSphere
+              :commit="commit"
+              :current="commit.id === currentTip"
+              :label-offset="wideBranchHistory ? spherePosition(index).labelOffset : undefined"
+            />
             <g
               v-if="!branchHistory && commit.id === currentTip"
               transform="translate(-60,-96)"
@@ -564,7 +619,7 @@ watch(
         :key="marker.name"
         :transform="`translate(${marker.x},${marker.y})`"
       >
-        <g :data-branch-marker="marker.name" :data-branch-name="marker.name">
+        <g class="branch-marker" :data-branch-marker="marker.name" :data-branch-name="marker.name">
           <rect
             :width="marker.width"
             height="30"
@@ -630,7 +685,7 @@ watch(
         aria-label="Checked-out contents"
         class="branch-checkout grid grid-cols-2 gap-1 pt-1 text-label [overflow-wrap:anywhere]"
       >
-        <div v-for="zone in checkout" :key="zone.key" :data-checkout-zone="zone.key">
+        <div v-for="zone in checkout" :key="zone.key">
           <h3 class="font-bold">{{ zone.label }}</h3>
           <ul :aria-label="zone.label" role="list">
             <li
@@ -648,6 +703,7 @@ watch(
         <li
           v-for="commit in [...historySummary.commits].reverse()"
           :key="commit.id"
+          :data-commit-id="commit.id"
           :data-current-snapshot="branchHistory && commit.id === currentTip ? '' : undefined"
         >
           <p class="flex flex-wrap items-center gap-x-2">
@@ -664,7 +720,7 @@ watch(
               {{ name === state.head ? '* ' : '' }}{{ name }}
             </span>
           </p>
-          {{ commit.parents.length ? 'Parent: ' + commit.parents.join(', ') : 'Root · no parent' }}
+          {{ describeParents(commit.parents) }}
         </li>
       </ul>
       <p class="history-legend">

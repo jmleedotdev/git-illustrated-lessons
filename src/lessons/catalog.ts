@@ -1,3 +1,4 @@
+import { bringWorkTogether } from './bringWorkTogether'
 import { chooseWhatToStage } from './chooseWhatToStage'
 import { createAndSwitchBranches } from './createAndSwitchBranches'
 import { editAndInspect } from './editAndInspect'
@@ -13,4 +14,5 @@ export const lessons: readonly Lesson[] = Object.freeze([
   recordCommit,
   readHistory,
   createAndSwitchBranches,
+  bringWorkTogether,
 ])

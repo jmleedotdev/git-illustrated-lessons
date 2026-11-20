@@ -7,6 +7,7 @@ import InlineText from './InlineText.vue'
 const props = defineProps<{ lessons: readonly Lesson[] }>()
 defineSlots<{
   scene(props: {
+    finalCommitCount: number
     presentation: Presentation
     description: string
     replay: () => void
@@ -188,6 +189,9 @@ onUnmounted(() => {
         <slot
           name="scene"
           :presentation="presentation"
+          :final-commit-count="
+            lesson.steps[lesson.steps.length - 1]!.transition.after.commits.length
+          "
           :description="step.change"
           :replay="player.replay"
           :reduced-motion="reducedMotion"

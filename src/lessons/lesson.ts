@@ -46,6 +46,7 @@ export interface LessonStep {
       | 'log'
       | 'create-branch'
       | 'switch-branch'
+      | 'merge'
     before: RepositoryState
     after: RepositoryState
   }>

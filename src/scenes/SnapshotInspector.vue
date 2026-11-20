@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { Commit } from '../lessons/lesson'
+import { describeParents } from './describeParents'
 
 const props = defineProps<{ commits: readonly Commit[]; branchTip?: string }>()
 const selectedId = ref<string>()
@@ -32,9 +33,7 @@ const inspected = computed(
         <p>
           <strong>{{ inspected.id }}</strong
           >:
-          {{
-            inspected.parents.length ? 'Parent: ' + inspected.parents.join(', ') : 'Root, no parent'
-          }}
+          {{ describeParents(inspected.parents) }}
         </p>
         <div v-for="file in inspected.snapshot" :key="file.name">
           <p>

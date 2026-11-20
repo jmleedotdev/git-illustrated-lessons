@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Commit } from '../lessons/lesson'
 
-defineProps<{ commit: Commit; current: boolean }>()
+defineProps<{ commit: Commit; current: boolean; labelOffset?: number }>()
 </script>
 
 <template>
@@ -26,11 +26,15 @@ defineProps<{ commit: Commit; current: boolean }>()
     <text
       v-for="(file, index) in commit.snapshot"
       :key="file.name"
+      :x="labelOffset"
       :y="80 + index * 21"
+      class="snapshot-label"
       font-size="17"
     >
       {{ file.name }}{{ file.version ? ' · ' + file.version : '' }}
     </text>
-    <text v-if="!commit.parents.length" y="125" font-size="17">Root · no parent</text>
+    <text v-if="!commit.parents.length" y="125" class="snapshot-label" font-size="17"
+      >Root · no parent</text
+    >
   </g>
 </template>
