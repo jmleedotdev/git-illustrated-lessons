@@ -58,9 +58,10 @@ pnpm exec playwright install chromium # once per required browser version
 pnpm verify
 ```
 
-`check` runs lint without fixes, formatting checks for application/test sources,
+`check` checks lesson CSS and SVG for literal palette colors, runs lint without
+fixes, and checks formatting for application/test sources,
 root TypeScript/JSON/HTML configuration, VS Code recommendations, and this README,
-then typechecking, Vitest in run mode, and Git whitespace checks for both unstaged
+then runs typechecking, Vitest in run mode, and Git whitespace checks for both unstaged
 and staged tracked changes. Historical planning documents are outside the formatter
 scope. Existing `pnpm lint` and `pnpm format` remain explicit fix commands; validation
 does not rewrite or stage source files (tools may write ignored build/test caches).

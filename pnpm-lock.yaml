@@ -203,6 +203,9 @@ importers:
       '@vue/tsconfig':
         specifier: ^0.9.1
         version: 0.9.1(typescript@6.0.3)(vue@3.5.45(typescript@6.0.3))
+      css-tree:
+        specifier: 3.2.1
+        version: 3.2.1
       eslint:
         specifier: ^10.10.0
         version: 10.15.0(jiti@2.7.0)

@@ -18,10 +18,11 @@
     "lint:check": "oxlint . && eslint .",
     "format": "prettier --write --experimental-cli src/",
     "format:check": "prettier --check src/ e2e/ scripts/ \"*.{ts,json,html}\" .vscode/extensions.json README.md",
-    "check": "pnpm lint:check && pnpm format:check && pnpm type-check && pnpm test:unit --run && git diff --check && git diff --cached --check",
+    "check": "pnpm check:lesson-palette && pnpm lint:check && pnpm format:check && pnpm type-check && pnpm test:unit --run && git diff --check && git diff --cached --check",
     "test:production": "node scripts/check-production.mjs",
     "verify": "pnpm check && pnpm build && pnpm test:production && pnpm test:e2e && CI=1 pnpm test:e2e",
-    "hooks:install": "git config --local core.hooksPath .githooks"
+    "hooks:install": "git config --local core.hooksPath .githooks",
+    "check:lesson-palette": "node scripts/check-lesson-palette.mjs"
   },
   "dependencies": {
     "vue": "^3.5.42",
@@ -38,6 +39,7 @@
     "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/test-utils": "^2.5.0",
     "@vue/tsconfig": "^0.9.1",
+    "css-tree": "3.2.1",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-oxlint": "~1.82.0",

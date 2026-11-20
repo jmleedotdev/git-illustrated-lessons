@@ -164,10 +164,10 @@ watch(
           />
         </pattern>
         <radialGradient id="repository-fade">
-          <stop offset="0" stop-color="white" />
-          <stop offset="1" stop-color="black" />
+          <stop offset="0" />
+          <stop offset="1" stop-opacity="0" />
         </radialGradient>
-        <mask id="repository-grid-mask">
+        <mask id="repository-grid-mask" mask-type="alpha">
           <rect width="960" height="500" fill="url(#repository-fade)" />
         </mask>
       </defs>
