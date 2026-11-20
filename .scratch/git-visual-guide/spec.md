@@ -66,7 +66,7 @@ This document contains the implementation requirements and acceptance gates. The
 44. As a reader, I want refresh and browser Back/Forward to preserve or restore my location, so that navigation behaves like a normal website.
 45. As a reader, I want invalid lesson locations to recover to a valid starting state, so that I never encounter an undefined scene.
 46. As a reader, I want Back/Next to stay within the lesson, so that step navigation does not unexpectedly change topics.
-47. As a reader, I want a separate Next lesson action at a lesson's end, so that moving to a new topic is deliberate.
+47. As a reader, I want separate Previous lesson and Next lesson actions at lesson boundaries, so that moving between topics is deliberate.
 48. As a reader, I want numbered step selection, so that I can jump to a state without playing every transition.
 49. As a reader, I want Replay to repeat the current step's change without changing my location, so that I can study the transition again.
 50. As a reader arriving through a direct link, I want Replay to work independently, so that it does not require a previous playback session.
@@ -209,7 +209,7 @@ The prototype calls those successive notes.txt contents B, C, and D. Such diagra
 
 - Use static-host-friendly hash URLs with stable lesson slugs and one-based step numbers, such as #/choose-what-to-stage/2. Refresh preserves the location; browser Back/Forward restores it. Direct entry must work independently of earlier playback.
 - Opening a lesson through Lessons selects its first step and closes the list. Numbered steps select directly. No separate progress persistence is required.
-- Back/Next never cross lesson boundaries. Disable Back at the first step and Next at the last. Provide a separate Next lesson action at the end when another lesson exists; it opens the following lesson at its first step. Do not invent an eleventh lesson after Push the work.
+- Back/Next never cross lesson boundaries. Disable Back at the first step and Next at the last. When an adjacent lesson exists, provide a separate `Previous: <lesson title>` link at step one and a `Next: <lesson title>` link at the end. The former opens the preceding lesson at its last step; the latter opens the following lesson at its first step. Do not invent an eleventh lesson after Push the work.
 - Invalid locations normalize to valid starting locations, never undefined scenes. A valid lesson with an invalid step may normalize to that lesson's first step; an unknown or missing lesson may normalize to the first lesson's first step.
 - Replay never changes the selected lesson, step, or URL location. Snapshot inspection is not lesson navigation or checkout.
 - All navigation controls are keyboard-operable, have visible focus, and expose the current step accessibly. Closing Lessons returns focus sensibly.
@@ -218,7 +218,7 @@ The prototype calls those successive notes.txt contents B, C, and D. Such diagra
 
 - Begin with Vue and small CSS/SVG transitions; add no animation library without demonstrated need. Motion must explain a specific state change rather than rely solely on whole-scene fades.
 - Suitable explanatory movements include copying selected contents into staging without removing the working file, creating a commit, moving branch/HEAD markers, and transferring needed committed history during push. Configuring origin must not animate a history transfer.
-- The lesson’s Back, Next, and Next lesson controls play the authored transition for the destination step. On initial load, the course’s opening step also plays when entered at the root or its exact hash. Other deep links, selection from Lessons or numbered steps, and browser-history navigation show the completed destination state immediately.
+- The lesson’s Back, Next, Previous lesson, and Next lesson controls play the authored transition for the destination step. On initial load, the course’s opening step also plays when entered at the root or its exact hash. Other deep links, selection from Lessons or numbered steps, and browser-history navigation show the completed destination state immediately.
 - Replay repeats the current step's defined before-to-after transition without navigating or advancing afterward. It works even when the step was reached directly and no previous animation ran.
 - Navigation can interrupt motion without waiting. Cancel superseded transitions and settle correctly at the new destination; delayed callbacks from old transitions must not overwrite the current selection or scene.
 - Neither normal nor reduced-motion playback auto-advances. Use the existing initialization caption transition (1.03 seconds total) as the shared duration for the finite repository-scene animations. This does not change the separate pauseable inspection loop. Choreography is reviewed at the visual gates; prototype fades are not final animation approval.

@@ -29,7 +29,9 @@ export function createPlayer(catalog: readonly Lesson[]) {
   })
   const canBack = computed(() => location.value.step > 1)
   const canNext = computed(() => location.value.step < lesson.value.steps.length)
-  const nextLesson = computed(() => catalog[catalog.indexOf(lesson.value) + 1] ?? null)
+  const lessonIndex = computed(() => catalog.indexOf(lesson.value))
+  const previousLesson = computed(() => catalog[lessonIndex.value - 1] ?? null)
+  const nextLesson = computed(() => catalog[lessonIndex.value + 1] ?? null)
 
   function present(animate: boolean) {
     presentation.value = {
@@ -59,6 +61,7 @@ export function createPlayer(catalog: readonly Lesson[]) {
     reducedMotion: readonly(reducedMotion),
     canBack,
     canNext,
+    previousLesson,
     nextLesson,
     select: (number: number) => go(lesson.value.slug, number),
     openLesson: (slug: string) => go(slug, 1),
@@ -67,6 +70,10 @@ export function createPlayer(catalog: readonly Lesson[]) {
     },
     next: () => {
       if (canNext.value) go(lesson.value.slug, location.value.step + 1, true)
+    },
+    openPreviousLesson: () => {
+      const destination = previousLesson.value
+      if (!canBack.value && destination) go(destination.slug, destination.steps.length, true)
     },
     openNextLesson: () => {
       if (!canNext.value && nextLesson.value) go(nextLesson.value.slug, 1, true)

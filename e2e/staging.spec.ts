@@ -19,7 +19,7 @@ test('plays the opening step at launch and when choosing Next lesson', async ({ 
   await page.reload()
   await expect(scene).toHaveAttribute('aria-busy', 'true')
   await page.goto('/#/start-a-repository/3')
-  await page.getByRole('link', { name: 'Next lesson: Edit and inspect' }).click()
+  await page.getByRole('link', { name: 'Next: Edit and inspect' }).click()
   await expect(page).toHaveURL(/#\/edit-and-inspect\/1$/)
   await expect(scene).toHaveAttribute('aria-busy', 'true')
   await page.goBack()
@@ -70,7 +70,38 @@ test('opens every editing and staging step in its completed state', async ({ pag
   await expect(scene).toHaveAccessibleDescription(
     /working directory.*version C.*staging area.*version B/i,
   )
-  await expect(page.getByRole('link', { name: /^Next lesson:/ })).toHaveCount(0)
+  await expect(page.getByRole('link', { name: /^Next:/ })).toHaveCount(0)
+})
+
+test('shows Previous lesson only at step one and returns to the preceding lesson’s last step', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 700 })
+  await page.goto('/#/choose-what-to-stage/2')
+  const previous = page.getByRole('link', { name: /^Previous:/ })
+  const bar = page.getByRole('navigation', { name: 'Walkthrough' })
+  const back = bar.getByRole('button', { name: 'Back' })
+  await expect(previous).toHaveCount(0)
+  await back.click()
+  await expect(back).toBeDisabled()
+  await expect(previous).toHaveText('Previous: Edit and inspect')
+  await expect(previous).toHaveAttribute('href', '#/edit-and-inspect/2')
+  await bar.getByRole('button', { name: 'Next' }).press('Tab')
+  await expect(previous).toBeFocused()
+  await expect
+    .poll(async () => {
+      const bounds = (await previous.boundingBox())!
+      return bounds.y + bounds.height
+    })
+    .toBeLessThan((await bar.boundingBox())!.y)
+  await previous.press('Enter')
+  await expect(page).toHaveURL(/#\/edit-and-inspect\/2$/)
+  await expect(page.getByRole('heading', { name: 'Edit and inspect', exact: true })).toBeFocused()
+  await expect(previous).toHaveCount(0)
+  await page.goBack()
+  await expect(previous).toBeVisible()
+  await page.goto('/#/start-a-repository/1')
+  await expect(previous).toHaveCount(0)
 })
 
 test('switches lessons by keyboard and by a separate Next lesson action', async ({ page }) => {
@@ -92,7 +123,7 @@ test('switches lessons by keyboard and by a separate Next lesson action', async 
   await page.keyboard.press('ArrowRight')
   await expect(page.getByLabel('Git command')).toHaveText('git status')
   await expect(page.getByRole('button', { name: 'Next', exact: true })).toBeDisabled()
-  const nextLesson = page.getByRole('link', { name: 'Next lesson: Choose what to stage' })
+  const nextLesson = page.getByRole('link', { name: 'Next: Choose what to stage' })
   await expect(nextLesson).toHaveAttribute('href', '#/choose-what-to-stage/1')
   await nextLesson.press('Enter')
   await expect(page).toHaveURL(/#\/choose-what-to-stage\/1$/)
@@ -201,7 +232,7 @@ test('keeps distinct versions readable on phones and the guide reachable on shor
 
   await page.setViewportSize({ width: 320, height: 700 })
   await page.goto('/#/edit-and-inspect/2')
-  const nextLesson = page.getByRole('link', { name: 'Next lesson: Choose what to stage' })
+  const nextLesson = page.getByRole('link', { name: 'Next: Choose what to stage' })
   const bar = page.getByRole('navigation', { name: 'Walkthrough' })
   await expect(bar).toHaveCSS('position', 'fixed')
   await page.getByRole('button', { name: /^Step 2:/ }).press('Tab')

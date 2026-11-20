@@ -14,7 +14,17 @@ defineSlots<{
   }): unknown
 }>()
 const player = createPlayer(props.lessons)
-const { lesson, step, location, presentation, canBack, canNext, nextLesson, reducedMotion } = player
+const {
+  lesson,
+  step,
+  location,
+  presentation,
+  canBack,
+  canNext,
+  previousLesson,
+  nextLesson,
+  reducedMotion,
+} = player
 const listOpen = ref(false)
 const toggle = ref<HTMLButtonElement>()
 const lessonList = ref<HTMLElement>()
@@ -44,10 +54,10 @@ function openLesson(event: MouseEvent, slug: string) {
   player.openLesson(slug)
   closeLessons()
 }
-async function openNextLesson(event: MouseEvent) {
+async function openAdjacentLesson(event: MouseEvent, open: () => void) {
   if (modifiedClick(event)) return
   event.preventDefault()
-  player.openNextLesson()
+  open()
   await nextTick()
   lessonHeading.value?.focus()
 }
@@ -271,12 +281,20 @@ onUnmounted(() => {
             </button>
           </nav>
           <a
+            v-if="!canBack && previousLesson"
+            :href="`#/${previousLesson.slug}/${previousLesson.steps.length}`"
+            class="control mt-2"
+            @click="openAdjacentLesson($event, player.openPreviousLesson)"
+          >
+            Previous: {{ previousLesson.title }}
+          </a>
+          <a
             v-if="!canNext && nextLesson"
             :href="`#/${nextLesson.slug}/1`"
             class="control mt-2"
-            @click="openNextLesson"
+            @click="openAdjacentLesson($event, player.openNextLesson)"
           >
-            Next lesson: {{ nextLesson.title }}
+            Next: {{ nextLesson.title }}
           </a>
           <small class="keyboard-hint">Select a step to jump · ← → to navigate</small>
         </section>
