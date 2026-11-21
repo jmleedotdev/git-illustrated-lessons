@@ -6,7 +6,7 @@
 
 **Blocked by:** [09 — Edit, inspect, and stage selected contents](09-edit-inspect-and-stage-selected-contents.md).
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Reuse the working/staged presentation from 09 and introduce the approved shared history treatment. Both lessons must open independently from their predefined states, not from mutable playback history.
 

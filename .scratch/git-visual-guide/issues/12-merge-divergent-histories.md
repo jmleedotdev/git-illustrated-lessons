@@ -6,7 +6,7 @@
 
 **Blocked by:** [11 — Create and switch branches](11-create-and-switch-branches.md).
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Extend the branch/history presentation from 11. Do not add conflict resolution, branch deletion, or a simulation engine.
 

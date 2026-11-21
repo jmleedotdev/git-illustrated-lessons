@@ -6,7 +6,7 @@
 
 **Blocked by:** [13 — Create and connect an empty GitHub repository](13-create-and-connect-empty-github-repository.md).
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Extend the separate repository presentation and independently authored post-merge states from 13. Preserve the parent spec's visual, motion, responsive, accessibility, and safety contracts.
 

@@ -6,9 +6,9 @@
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-human
+**Status:** resolved
 
-**Implementation:** complete (the Status above records the human-assisted triage role).
+**Implementation:** complete; the human-assisted setup and audit findings are recorded below.
 
 This ticket is human-assisted scaffolding, not lesson implementation. Follow the approved implementation spec and preserve existing repository contents. The disposable prototype is not the production starting point.
 

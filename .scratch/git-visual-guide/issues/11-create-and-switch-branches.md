@@ -6,7 +6,7 @@
 
 **Blocked by:** [10 — Record commits and read their history](10-record-commits-and-read-history.md).
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Extend the history presentation from 10, preserving the parent's approved visual, playback, accessibility, and responsive contracts.
 
@@ -22,7 +22,7 @@ Extend the history presentation from 10, preserving the parent's approved visual
 
 ## Comments
 
-Implementation is complete. **Human visual verdict: pending.** The parent spec's history/merge gate remains open; this ticket does not yet include the two-parent merge.
+Implementation is complete. **Human history/merge verdict: approved** in the [integrated review](15-verify-and-accept-ten-lesson-experience.md#revised-a-and-checkpoint-verdicts). The two-parent merge itself is covered by [ticket 12](12-merge-divergent-histories.md).
 
 | Production evidence | Desktop (1440×900) | Phone (390×844) |
 | --- | --- | --- |
@@ -38,4 +38,4 @@ All six states fit horizontally at 1672×920, 1440×900, 1280×720, 1200×560, 3
 
 **Standards review:** Preserved Safari list semantics, kept the revised A commit-label proportions, moved checkout layout utilities to the template, and documented the deviations. Separated branch choreography from the shared cancellation watcher and switched animation targets to stable checkout-zone keys.
 
-**Spec review:** Fixed cramped graph labels with the compact history fallback, tested fresh loads of every deep link, and added a Back-during-Next interruption check. The visual gate still needs human approval.
+**Spec review:** Fixed cramped graph labels with the compact history fallback, tested fresh loads of every deep link, and added a Back-during-Next interruption check.

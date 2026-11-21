@@ -6,7 +6,7 @@
 
 **Blocked by:** [10 — Record commits and read their history](10-record-commits-and-read-history.md).
 
-**Status:** ready-for-agent
+**Status:** resolved
 
 Reuse approved comic-sphere/history visual elements from 10. This ticket is intentionally not blocked by 12: its lessons use immutable, independently authored post-merge states specified by the parent, not playback from the merge lesson.
 
@@ -25,7 +25,7 @@ Reuse approved comic-sphere/history visual elements from 10. This ticket is inte
 
 ## Comments
 
-Implemented both two-step lessons. Open `/#/create-a-remote-repository/2` for the empty hosted repository, or `/#/connect-local-and-remote/2` for the configured connection. Both open independently; Replay highlights only the created repository name or the dashed connection, never the commits.
+Implemented both two-step lessons. Open `/#/create-a-remote-repository/2` for the empty hosted repository, or `/#/connect-local-and-remote/2` for the configured connection. Both open independently; Replay highlights only the created repository name or the dashed connection, never the commits. The shared remote/push visual checkpoint was approved in the [integrated review](15-verify-and-accept-ten-lesson-experience.md#revised-a-and-checkpoint-verdicts).
 
 **Visual comparison:** Opened the matching revised A states from `prototype/git-visual-guide` alongside production preview in Chromium at 1440×900 and 390×844, 100% zoom and DPR 1. The desktop SVG retains the `0 0 900 420` viewBox, 380×330 rounded dotted panels at `(25,30)` and `(495,30)`, the separate 56×28 diamond patterns, the five sphere centers, parent arrow geometry, branch placement, and dashed `M405 140H495` origin path. Production scales the approved shared comic sphere to the study’s 23-unit radius and uses shared palette and type tokens. The archived study still contains the empty-panel copy and pre-origin “no link” label; the canonical approval calls for their removal, so production puts the explanation in the scene note and guide. The production timeline represents each lesson separately, with independent Next lesson navigation. The textual view replaces the SVG on narrow screens and short desktop windows to avoid shrinking labels. [Create, desktop](../screenshots/13/product-create-1440.png) · [Connect, desktop](../screenshots/13/product-connect-1440.png) · [Connect, phone](../screenshots/13/product-connect-390.png).
 

@@ -1,6 +1,8 @@
 # Git visual learning website — implementation spec
 
-Status: ready-for-agent
+Status: ready-for-human
+
+Implementation: all ten lessons are complete and all three human visual checkpoints are approved. Final acceptance is open in [ticket 15](issues/15-verify-and-accept-ten-lesson-experience.md).
 
 Parent: [A Designed to Scale-style Git learning website](map.md)
 
@@ -248,7 +250,7 @@ The user confirmed these seams before publication: the rendered website is the p
 
 A good test verifies externally meaningful behavior: authored Git facts, selected location, visible and accessible state, navigation results, or cancellation outcomes. Avoid coupling tests to private component structure, CSS class names, drawing coordinates, timers, or internal helper calls. Visual evidence complements behavioral tests; neither replaces the other.
 
-There is no production application or automated test suite to extend. Prior art is the disposable prototype's build/type checks and scripted browser smoke checks for staging, eight history samples, and four remote samples at desktop and phone sizes. Reuse the observable cases, not its obsolete baseline scenario, variant-switching checks, dependency tree, or debug implementation. Those checks are evidence about a prototype, not production acceptance.
+At handoff, there was no production application or automated test suite. The disposable prototype's build/type checks and browser smoke checks informed the production tests, but are not production acceptance evidence. The integrated production verification is recorded in [ticket 15](issues/15-verify-and-accept-ten-lesson-experience.md).
 
 ### Automated checks
 
@@ -299,9 +301,9 @@ At every checkpoint present **desktop and phone screenshots plus normal-motion r
 
 ### Status and authority
 
-This is the self-contained implementation entry point, published in the local Markdown issue tracker with Status: ready-for-agent. All planning-map decision tickets are resolved, and the testing seams were explicitly confirmed by the user. Readiness means the work is specified; it does not claim that the website has been built or accepted, or authorize execution beyond the current documentation request.
+This is the authoritative implementation spec. All planning-map decision tickets are resolved, the foundation and lesson slices are delivered, and the testing seams were explicitly confirmed by the user. The remaining work is final acceptance: native Safari smoke checks, manual keyboard and screen-reader checks, manual normal and reduced motion (including a live preference change), phone safe-area clearance, and label readability and focus checks across the viewport matrix. See [ticket 15](issues/15-verify-and-accept-ten-lesson-experience.md) for recorded results and the closing checklist. This status does not imply deployment.
 
-The ten-lesson curriculum supersedes the old staging prototype's implicit baseline commit and placeholder lesson list. Final revised A treatments supersede earlier layout, sphere, grid, caption, and command-emphasis experiments. Readability/accessibility exceptions override literal reference fidelity. The remaining choices—private organization, final short copy, precise transition timing, and collection of acceptance evidence—are implementation work, not unresolved product decisions.
+The ten-lesson curriculum supersedes the old staging prototype's implicit baseline commit and placeholder lesson list. Final revised A treatments supersede earlier layout, sphere, grid, caption, and command-emphasis experiments. Readability/accessibility exceptions override literal reference fidelity. The open acceptance checks do not reopen settled product decisions.
 
 Use the [domain glossary](../../GLOSSARY.md) for canonical Git terminology. Its required distinctions are carried into this spec; do not substitute “upload queue,” “copied folder,” “saved diff,” or “automatic sync” for the concepts being taught. No relevant ADR currently exists.
 
