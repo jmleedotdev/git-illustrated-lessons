@@ -20,12 +20,12 @@ Reuse the working/staged presentation from 09 and introduce the approved shared 
 - [x] Use explanatory commit-creation motion with correct independent Replay, cancellation, direct-entry final states, and live reduced-motion behavior. Preserve the approved guide hierarchy and all shared navigation/accessibility contracts.
 - [x] Vitest checks c1/c2 snapshots, parent relationships, retained unstaged contents, staging after commit, clean completion, and independent starting states. Playwright reaches all new steps and verifies recorded-snapshot inspection without checkout changes.
 - [x] Verify readable desktop and phone states, short-height scrolling/reflow, equivalent textual relationships, named scenes, visible keyboard focus, target/text minima, and unobscured phone content. Type checking, build, and existing tests remain green; record results.
-- [ ] Present desktop and phone screenshots plus normal-motion recordings for the staging/commit checkpoint: page composition, command/editor-action hierarchy, working versus staged contents, root commit, and staging after commit. Record the human verdict and any requested corrections.
-- [ ] Obtain human approval of the staging/commit checkpoint before treating this ticket's visual acceptance as complete. Automated tests and prototype screenshots are not substitutes.
+- [x] Present desktop and phone screenshots plus normal-motion recordings for the staging/commit checkpoint: page composition, command/editor-action hierarchy, working versus staged contents, root commit, and staging after commit. Record the human verdict and any requested corrections.
+- [x] Obtain human approval of the staging/commit checkpoint before treating this ticket's visual acceptance as complete. Automated tests and prototype screenshots are not substitutes.
 
 ## Comments
 
-Implementation is complete. **Human visual verdict: pending.** No human corrections have been requested yet; the visual checkpoint remains open.
+Implementation is complete. **Human visual verdict: approved** in the [integrated review](15-verify-and-accept-ten-lesson-experience.md#revised-a-and-checkpoint-verdicts). No corrections were requested.
 
 | Production check | Desktop (1440×900) | Phone (390×844) |
 | --- | --- | --- |

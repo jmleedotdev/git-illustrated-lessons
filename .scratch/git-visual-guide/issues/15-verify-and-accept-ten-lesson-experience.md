@@ -20,14 +20,14 @@ This is an integration and acceptance slice, not permission to defer feature tes
 - [ ] Confirm practical compact desktop scene/timeline fit, internal guide scrolling on short windows or vertical reflow when necessary, normal phone scene-first document scrolling, and fixed safe-area-aware phone controls that never obscure content or focus. Never shrink the whole page to counteract viewport size or zoom.
 - [ ] Perform Firefox and Safari smoke checks in addition to automated Chromium coverage. Manually verify keyboard and screen-reader usability, scene names, per-step equivalent explanations, announced step changes, sensible Lessons focus return, and non-color branch cues.
 - [x] Compare the final approved A treatments, not unselected variants or literal reference pixels. Responsive/accessibility requirements and the approved curriculum override historical prototype assumptions.
-- [ ] Confirm recorded human approval for staging/commit, history/merge, and remote/push checkpoints, each supported by desktop/phone screenshots and normal-motion recordings. If integrated changes affect an approved treatment, present updated evidence and obtain approval for the affected checkpoint.
+- [x] Confirm recorded human approval for staging/commit, history/merge, and remote/push checkpoints, each supported by desktop/phone screenshots and normal-motion recordings. If integrated changes affect an approved treatment, present updated evidence and obtain approval for the affected checkpoint.
 - [x] Type checking, production build, Vitest, and Playwright pass. Verify compiled Tailwind utilities, no reset regressions in controls/focus/commands/SVG, licensed self-hosted font/fallback, and no unintended prototype dependency or external-font carryover.
 - [ ] Record actual toolchain/test outcomes, browser and viewport coverage, manual accessibility/motion findings, failures and their resolution, and human checkpoint verdicts. Do not represent unavailable or unperformed checks as passing, and do not treat automated accessibility checks as certification.
 - [ ] Resolve acceptance failures and rerun affected checks before claiming completion. No repository initialization, remote creation, push, PR, site publication, or deployment is implied by acceptance.
 
 ## Comments
 
-Integrated verification is complete for the checks below. **Final acceptance is open:** native Safari, manual assistive-technology and phone safe-area checks, and human checkpoint verdicts are not recorded. The parent spec and map are unchanged.
+Integrated verification is complete for the checks below. **Final acceptance is open:** the three visual checkpoints are approved, but native Safari, manual accessibility and motion, phone safe-area, and remaining label/focus checks are not complete. The parent spec and map are unchanged.
 
 ### Automated verification
 
@@ -54,12 +54,14 @@ The matrix is partial: the exhaustive run measures text and control sizes and ov
 
 Compared revised A from `prototype/git-visual-guide` with production preview, side by side at 100% zoom and DPR 1: [1440×900](../screenshots/15/revised-a-1440.jpg) and [390×844](../screenshots/15/revised-a-390.jpg). The staging `0 0 960 500` viewBox retains the grid and isometric platform paths; approved folded pages replace the prototype glyphs and the history platform is empty until c1. The root commit stays alongside working/staged contents; the merge uses the open `-50 -65 1060 475` graph, the five approved sphere centers, parent paths to the outlines, and ordered labels on the actual arrow segments. Remote preserves the `0 0 900 420` viewBox, two dotted grid panels, local refs, the dashed origin path, and the separate push arrow. Phones carry readable text equivalents rather than shrinking the wide graphs. Production uses its lesson-specific timeline, separate adjacent-lesson links, and larger native targets. The Lessons fix changes focus behavior, not scene geometry or choreography.
 
+The human confirmed “reviewed and approved” in response to the integrated visual review. No visual corrections were requested. This records the three checkpoint verdicts, not results for the outstanding manual checks.
+
 | Checkpoint | Production screenshots and normal-motion recordings | Human verdict |
 | --- | --- | --- |
-| Staging/commit | [Ticket 10 evidence](10-record-commits-and-read-history.md#comments) | Pending. |
-| History/merge | [Ticket 12 evidence](12-merge-divergent-histories.md#comments) | Pending; ticket 12's visual gate remains open. |
-| Remote/push | [Ticket 14 evidence](14-push-main-and-inspect-committed-files.md#comments) plus the current comparison above | Pending; ticket 14's visual gate remains open. Its recordings predate removal of repeated prerequisites from remote opening steps; the scene treatment and choreography did not change. |
+| Staging/commit | [Ticket 10 evidence](10-record-commits-and-read-history.md#comments) | Approved. |
+| History/merge | [Ticket 12 evidence](12-merge-divergent-histories.md#comments) | Approved. |
+| Remote/push | [Ticket 14 evidence](14-push-main-and-inspect-committed-files.md#comments) plus the current comparison above | Approved. The recordings predate removal of repeated prerequisites from remote opening steps; the scene treatment and choreography did not change. |
 
 **Independent review:** Standards and Spec both flagged the original fake-clock-only interruption check, which could not establish native animation settlement. The revised test awaits the browser’s animation promises and checks cancellation before advancing JS timers. The review also led to clearer target names and narrower claims about the layout matrix and spoken announcements.
 
-To close: run native Safari and a human keyboard/VoiceOver walkthrough (including list dismissal, announced steps, equivalent scene text, non-color branch cues, and phone fixed-bar/safe-area clearance); finish visual label/focus checks across the matrix; manually check normal motion, reduced motion, and a live preference change; then review the desktop/phone evidence and record approval for each checkpoint. Address any findings and rerun the affected checks before marking acceptance complete.
+To close: run native Safari and a human keyboard/VoiceOver walkthrough (including list dismissal, announced steps, equivalent scene text, non-color branch cues, and phone fixed-bar/safe-area clearance); finish visual label/focus checks across the matrix; and manually check normal motion, reduced motion, and a live preference change. Address any findings and rerun the affected checks before marking acceptance complete.

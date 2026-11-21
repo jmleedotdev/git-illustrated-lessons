@@ -20,11 +20,11 @@ Extend the branch/history presentation from 11. Do not add conflict resolution, 
 - [x] Vitest verifies all snapshots, ordered parents, branch/HEAD positions, clean final state, and independent entry. Playwright reaches every new step and verifies navigation, Replay, interruption, keyboard behavior, reduced motion, and no horizontal overflow.
 - [x] Preserve distinct working/staged/inspected snapshots, readable story/labels, target/text minima, phone safe-area clearance, accessible state/change explanations, and short-height scrolling or reflow. Type checking, build, and regression tests pass; record actual results.
 - [x] Present desktop and phone screenshots plus normal-motion recordings for the history/merge checkpoint, including shared ancestry, branch/HEAD markers, checkout changes, inspection independence, open framing, arrows, and both ordered merge parents.
-- [ ] Record the human verdict, address requested corrections, and obtain history/merge approval before treating this ticket's visual acceptance as complete. Prototype motion and automated tests do not establish that approval.
+- [x] Record the human verdict, address requested corrections, and obtain history/merge approval before treating this ticket's visual acceptance as complete. Prototype motion and automated tests do not establish that approval.
 
 ## Comments
 
-Implemented the five-step **Bring work together** lesson. **Human visual verdict: pending.** Open `/#/bring-work-together/5` on the development or production preview server to inspect the merge directly, then choose Replay to see the transition from divergence.
+Implemented the five-step **Bring work together** lesson. **Human visual verdict: approved** in the [integrated review](15-verify-and-accept-ten-lesson-experience.md#revised-a-and-checkpoint-verdicts). Open `/#/bring-work-together/5` on the development or production preview server to inspect the merge directly, then choose Replay to see the transition from divergence.
 
 | Production evidence | Desktop (1440×900) | Phone (390×844) |
 | --- | --- | --- |
@@ -40,4 +40,4 @@ Compared return, divergence, and merge with the matching revised A history study
 
 **Standards review:** No hard violations reported. Shared checkout-caption calculation between graph and staging scenes, and exposed a named final commit count to keep the graph framing stable.
 
-**Spec review:** Kept the graph on short, wide screens instead of hiding it, added fresh loads for intermediate steps, and recorded verification results. Human approval remains open.
+**Spec review:** Kept the graph on short, wide screens instead of hiding it, added fresh loads for intermediate steps, and recorded verification results.
