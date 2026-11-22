@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { documentBounds } from './document-bounds.js'
+
 const titles = [
   'Alice starts with a file.',
   'Alice initializes Git.',
@@ -227,6 +229,8 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
   ).toBeGreaterThanOrEqual(44)
   await page.goto('/start-a-repository/1')
   await page.getByRole('button', { name: /^Step 3:/ }).press('Tab')
+  await expect(scene.getByRole('button', { name: 'Replay' })).toBeFocused()
+  await page.keyboard.press('Tab')
   await expect(details).toBeFocused()
   await expect
     .poll(async () => {
@@ -257,9 +261,37 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
   await bar.getByRole('button', { name: 'Back' }).click()
   await expect(scene.getByText('Git not initialized')).toBeVisible()
   await bar.getByRole('button', { name: 'Next' }).click()
-  const stagingCaption = scene.getByText('Empty', { exact: true }).filter({ visible: true })
+  const stagingCaption = scene.getByRole('definition').filter({ hasText: /^Empty$/ })
   await expect.poll(() => stagingCaption.evaluate((node) => node.getAnimations().length)).toBe(1)
   await expect(scene).toHaveAttribute('aria-busy', 'false')
+})
+
+test('keeps the stage fixed beneath the timeline as Lesson 1 changes', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/start-a-repository/1')
+  await page.evaluate(() => document.fonts.ready.then(() => undefined))
+  const heading = page.getByRole('heading', { level: 1 })
+  const timeline = page.getByRole('navigation', { name: 'Explanation steps' })
+  const scene = page.getByRole('figure', { name: 'Repository illustration' })
+  const diagram = scene.getByRole('img', { name: /Repository scene/ })
+  const stage = await documentBounds(diagram)
+  const timelineBox = await documentBounds(timeline)
+  const headingBox = await documentBounds(heading)
+
+  expect(timelineBox.y).toBeGreaterThanOrEqual(headingBox.y + headingBox.height)
+  expect(stage.y).toBeGreaterThanOrEqual(timelineBox.y + timelineBox.height)
+  expect(stage.height).toBeCloseTo(476.5, 0)
+  await timeline.getByRole('button', { name: /^Step 2:/ }).click()
+  await scene.getByRole('button', { name: 'Replay' }).click()
+  await expect(diagram).toBeVisible()
+  expect(await documentBounds(diagram)).toEqual(stage)
+  await timeline.getByRole('button', { name: /^Step 3:/ }).click()
+  await expect(scene.getByRole('button', { name: 'Pause animation' })).toBeVisible()
+  expect(await documentBounds(diagram)).toEqual(stage)
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await expect(scene.getByRole('button', { name: 'Replay' })).toBeDisabled()
+  await expect(scene.getByText('Unavailable with reduced motion.')).toBeVisible()
+  expect(await documentBounds(diagram)).toEqual(stage)
 })
 
 test('fits the approved scene and guide layout on desktop', async ({ page }) => {

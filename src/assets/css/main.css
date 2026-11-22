@@ -151,7 +151,12 @@
   }
 }
 
-/* Revised A uses a viewport-height sheet with a separate guide rail. */
+/* Reserving the scrollbar gutter keeps stage width stable when the canvas grows. */
+html:has(.lesson-app) {
+  scrollbar-gutter: stable;
+}
+
+/* Revised A uses a scene-first sheet with a separate guide rail. */
 .lesson-app {
   --lesson-header-height: 54px;
   --lesson-gutter: var(--spacing-inset);
@@ -222,11 +227,16 @@
   font-weight: 700;
 }
 .lesson-layout {
+  --lesson-top-space: 12px;
+  --lesson-bottom-space: 76px;
+  --lesson-guide-height: calc(
+    100dvh - var(--lesson-header-height) - var(--lesson-top-space) - var(--lesson-bottom-space)
+  );
   display: grid;
   grid-template-columns: minmax(0, 1fr) 350px;
   gap: var(--lesson-gutter);
-  height: calc(100dvh - var(--lesson-header-height));
-  padding: 12px var(--lesson-gutter) 76px;
+  min-height: calc(100dvh - var(--lesson-header-height));
+  padding: var(--lesson-top-space) var(--lesson-gutter) var(--lesson-bottom-space);
 }
 .lesson-canvas {
   display: flex;
@@ -261,9 +271,7 @@
 }
 .lesson-stage {
   display: flex;
-  flex: 1 1 0;
   flex-direction: column;
-  min-height: 0;
   border: var(--border-hairline) solid var(--color-stage-rule);
   border-radius: 12px;
   background: var(--color-stage);
@@ -283,15 +291,16 @@
   cursor: not-allowed;
 }
 .motion-reason {
-  flex-basis: 100%;
+  padding: 0 var(--spacing-inset) calc(2 * var(--spacing));
   text-align: right;
 }
-.repository-diagram {
+.stage-diagram {
   display: block;
   width: 100%;
-  height: 0;
-  min-height: 0;
-  flex: 1 1 0;
+  /* Lesson 1's 960:500 drawing occupied about 915 × 476.5px at 1440 × 900. */
+  max-width: 915px;
+  aspect-ratio: 960 / 500;
+  margin-inline: auto;
 }
 @media (prefers-reduced-motion: no-preference) {
   .inspection-loop {
@@ -424,19 +433,6 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-@media (min-width: 801px) {
-  .lesson-layout:has(.snapshot-details[open]) {
-    height: auto;
-    grid-template-rows: minmax(calc(100dvh - var(--lesson-header-height) - 88px), auto);
-  }
-  .lesson-stage:has(.snapshot-details[open]) {
-    flex-basis: auto;
-    min-height: min-content;
-  }
-  .lesson-stage:has(.snapshot-details[open]) .repository-diagram {
-    min-height: 290px;
-  }
-}
 .scene-note {
   padding: 12px 15px;
   border-top: var(--border-hairline) solid var(--color-stage-rule);
@@ -455,12 +451,13 @@
 }
 .lesson-timeline {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  padding-top: 14px;
+  margin-bottom: 14px;
 }
 .lesson-timeline button {
   display: flex;
-  flex: 1 1 0;
+  flex: 1 1 8rem;
   align-items: center;
   gap: 8px;
   border-radius: var(--radius-control);
@@ -478,19 +475,18 @@
   border: var(--border-hairline) solid var(--color-grid-line);
   border-radius: 50%;
 }
-.lesson-timeline [aria-current='step'] {
-  font-weight: 700;
-}
 .lesson-timeline [aria-current='step'] .timeline-number {
   border-color: var(--color-git-edge);
   background: var(--color-git);
   box-shadow: 1px 2px var(--color-git-edge);
+  font-weight: 700;
 }
 .lesson-rail {
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  height: max(280px, var(--lesson-guide-height));
   gap: 14px;
 }
 .lesson-guide,
@@ -619,7 +615,7 @@
 }
 @media (min-width: 801px) and (max-height: 500px) {
   .lesson-layout {
-    padding-bottom: 12px;
+    --lesson-bottom-space: 12px;
   }
 }
 @media (min-width: 801px) and (max-width: 1150px) {
@@ -633,17 +629,6 @@
   }
 }
 @media (max-width: 1100px), (max-height: 850px) {
-  .repository-diagram.has-history:not(.branch-graph) text:not(.scene-git-status, .commit-id),
-  .repository-diagram.has-history .diagram-branch {
-    display: none;
-  }
-  .repository-diagram.has-history .scene-git-status {
-    font-size: 36px;
-  }
-  .repository-diagram.has-history:not(.branch-graph) .commit-id {
-    font-size: 38px;
-    transform: translateY(6px);
-  }
   .zone-summary.with-history {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -655,7 +640,6 @@
   .zone-summary.with-history dt {
     font-weight: 700;
   }
-  .repository-diagram.branch-graph:not(.merge-graph),
   .lesson-stage:has(.merge-graph) .compact-history {
     display: none;
   }
@@ -664,44 +648,8 @@
   }
 }
 @media (max-width: 1100px) {
-  .repository-diagram.branch-graph {
-    display: none;
-  }
   .lesson-stage:has(.merge-graph) .compact-history {
     display: grid;
-  }
-}
-/* Reflow the five-commit graph on short, wide viewports instead of shrinking its labels. */
-@media (width > 1100px) and (height < 900px) {
-  .lesson-layout:has(.merge-graph) {
-    height: auto;
-  }
-  .lesson-stage:has(.merge-graph) {
-    flex-basis: auto;
-  }
-  .repository-diagram.merge-graph {
-    flex: none;
-    height: clamp(300px, 28vw, 340px);
-  }
-}
-@media (min-width: 801px) and (max-height: 850px) {
-  .lesson-layout:has(.branch-graph) {
-    height: auto;
-  }
-  .lesson-stage:has(.branch-graph) {
-    flex-basis: auto;
-  }
-}
-@media (min-width: 801px) and (max-height: 760px) {
-  .lesson-layout:has(.has-history) {
-    height: auto;
-  }
-  .lesson-stage:has(.has-history) {
-    flex-basis: auto;
-  }
-  .repository-diagram.has-history {
-    flex: none;
-    height: clamp(230px, 32vw, 340px);
   }
 }
 @media (max-width: 800px) {
@@ -725,8 +673,7 @@
   }
   .lesson-layout {
     grid-template-columns: minmax(0, 1fr);
-    height: auto;
-    padding-bottom: calc(7rem + env(safe-area-inset-bottom));
+    --lesson-bottom-space: calc(7rem + env(safe-area-inset-bottom));
   }
   .lesson-canvas {
     padding-inline: var(--lesson-gutter);
@@ -751,20 +698,11 @@
     padding-inline: 7px;
     font-size: 11px;
   }
-  .lesson-stage,
-  .lesson-guide {
-    flex: none;
-  }
-  .repository-diagram {
-    flex: none;
+  .lesson-rail {
     height: auto;
   }
-  .repository-diagram text:not(.scene-git-status, .commit-id) {
-    display: none;
-  }
-  .scene-git-status,
-  .repository-diagram.has-history .scene-git-status {
-    font-size: 46px;
+  .lesson-guide {
+    flex: none;
   }
   .zone-summary {
     display: grid;
@@ -784,10 +722,6 @@
   }
   .lesson-timeline {
     gap: 2px;
-  }
-  .lesson-timeline:has(> :nth-child(5)) {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
   .lesson-timeline button {
     gap: 4px;

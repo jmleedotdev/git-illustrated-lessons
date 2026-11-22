@@ -115,15 +115,17 @@ for (const [width, height] of [
     await page.setViewportSize({ width, height })
     await page.goto(connect + '2')
     const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
-    await expect(figure.getByRole('img')).toBeHidden()
+    await expect(figure.getByRole('img')).toBeVisible()
     await expect(figure.getByText(/Alice’s computer.*HEAD → main → c5/)).toHaveCSS(
       'font-size',
       '16px',
     )
-    await expect(figure.getByText(noTransfer)).toBeInViewport()
     await expect(page.getByRole('button', { name: 'Step 2: Add origin' })).toBeInViewport({
       ratio: 1,
     })
+    const caption = figure.getByText(noTransfer)
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+    await expect(caption).toBeInViewport({ ratio: 1 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
   })
 }
@@ -138,7 +140,7 @@ for (const width of [320, 390, 720]) {
     await expect(figure.getByText(/\* main is current/)).toBeVisible()
     await expect(figure.getByText(/names the GitHub address/)).toBeVisible()
     await expect(figure).toHaveAccessibleDescription(/first parent c4 and second parent c3/)
-    await expect(figure.getByRole('img')).toBeHidden()
+    await expect(figure.getByRole('img')).toBeVisible()
     const words = page.getByText('Diagram in words', { exact: true })
     await words.press('Enter')
     await expect(words).toBeFocused()

@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { documentBounds } from './document-bounds.js'
+
 // The approved curriculum is the oracle, not the application's lesson registry.
 const curriculum = [
   ['start-a-repository', 'Start a repository', 3],
@@ -73,10 +75,10 @@ test('leaving Lessons with Tab uncovers the focused phone control', async ({ pag
   await page.getByRole('button', { name: 'Lessons', exact: true }).press('Enter')
   const list = page.getByRole('navigation', { name: 'Lessons' })
   await list.getByRole('link', { name: '10 Push the work' }).press('Tab')
-  const replay = page.getByRole('button', { name: 'Replay' })
-  await expect(replay).toBeFocused()
+  const firstStep = page.getByRole('button', { name: /^Step 1:/ })
+  await expect(firstStep).toBeFocused()
   await expect(list).toBeHidden()
-  await expect(replay).toHaveCSS('outline-style', 'solid')
+  await expect(firstStep).toHaveCSS('outline-style', 'solid')
 })
 
 test('superseded motion cannot update or advance the selected step across scenes', async ({
@@ -131,6 +133,27 @@ test('superseded motion cannot update or advance the selected step across scenes
   }
 })
 
+test('selecting each of the six phone timeline steps leaves its height and the stage fixed', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 700 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(lessonUrl('create-and-switch-branches', 1))
+  await page.evaluate(() => document.fonts.ready.then(() => undefined))
+  const timeline = page.getByRole('navigation', { name: 'Explanation steps' })
+  const diagram = page.getByRole('figure').getByRole('img')
+  const stage = await documentBounds(diagram)
+  const timelineBox = await documentBounds(timeline)
+
+  for (const step of [2, 3, 4, 5, 6, 1]) {
+    const button = timeline.getByRole('button', { name: new RegExp(`^Step ${step}:`) })
+    await button.click()
+    await expect(button).toHaveAttribute('aria-current', 'step')
+    expect(await documentBounds(timeline)).toEqual(timelineBox)
+    expect(await documentBounds(diagram)).toEqual(stage)
+  }
+})
+
 for (const [width, height] of [
   [1672, 920],
   [1440, 900],
@@ -138,13 +161,16 @@ for (const [width, height] of [
   [1200, 560],
   [390, 844],
   [320, 700],
+  [667, 375],
 ] as const) {
   test(`every scene fits the ${width}×${height} CSS viewport with reduced motion`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height })
     await page.emulateMedia({ reducedMotion: 'reduce' })
+    let sharedSize: { width: number; height: number } | undefined
     for (const [slug, title, count] of curriculum) {
+      let initialPlacement: { x: number; y: number; timelineHeight: number } | undefined
       for (let step = 1; step <= count; step++) {
         const url = lessonUrl(slug, step)
 
@@ -180,6 +206,21 @@ for (const [width, height] of [
           })
           expect(layout.pageWidth).toBe(layout.viewport)
           expect(layout.smallestText).toBeGreaterThanOrEqual(16)
+          const diagram = scene.getByRole('img')
+          const timeline = page.getByRole('navigation', { name: 'Explanation steps' })
+          await expect(diagram).toBeVisible()
+          const stage = await documentBounds(diagram)
+          const timelineBox = await documentBounds(timeline)
+          const { x, y, width: stageWidth, height: stageHeight } = stage
+          const size = { width: stageWidth, height: stageHeight }
+          const placement = { x, y, timelineHeight: timelineBox.height }
+          sharedSize ??= size
+          initialPlacement ??= placement
+          expect(size).toEqual(sharedSize)
+          expect(placement).toEqual(initialPlacement)
+          expect(x).toBeGreaterThanOrEqual(0)
+          expect(x + stageWidth).toBeLessThanOrEqual(layout.viewport)
+          expect(y).toBeGreaterThanOrEqual(timelineBox.y + timelineBox.height)
           const controls = page
             .getByRole('button')
             .or(page.getByRole('link'))

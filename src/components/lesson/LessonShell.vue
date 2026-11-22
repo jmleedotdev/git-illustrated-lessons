@@ -176,16 +176,6 @@ onUnmounted(() => {
           </div>
           <h1 id="lesson-title" ref="lessonHeading" tabindex="-1">{{ lesson.title }}</h1>
         </div>
-        <slot
-          name="scene"
-          :presentation="presentation"
-          :final-commit-count="
-            lesson.steps[lesson.steps.length - 1]!.transition.after.commits.length
-          "
-          :description="step.change"
-          :replay="player.replay"
-          :reduced-motion="reducedMotion"
-        />
         <nav aria-label="Explanation steps" class="lesson-timeline">
           <button
             v-for="(item, index) in lesson.steps"
@@ -199,6 +189,16 @@ onUnmounted(() => {
             <span>{{ item.label }}</span>
           </button>
         </nav>
+        <slot
+          name="scene"
+          :presentation="presentation"
+          :final-commit-count="
+            lesson.steps[lesson.steps.length - 1]!.transition.after.commits.length
+          "
+          :description="step.change"
+          :replay="player.replay"
+          :reduced-motion="reducedMotion"
+        />
       </section>
 
       <div class="lesson-rail">

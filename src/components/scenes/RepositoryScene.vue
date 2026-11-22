@@ -469,13 +469,7 @@ watch(
           Replay
         </button>
       </div>
-      <p v-if="reducedMotion" id="motion-reason" class="motion-reason text-label">
-        Unavailable with reduced motion.
-      </p>
     </div>
-    <p v-if="branchHistory" class="branch-head font-bold" data-head-readout>
-      {{ gitStatus(state) }}
-    </p>
     <svg
       :viewBox="branchHistory ? branchViewBox : '0 0 960 500'"
       role="img"
@@ -483,7 +477,7 @@ watch(
       :aria-describedby="
         branchHistory ? 'scene-description branch-relationships' : 'scene-description'
       "
-      class="repository-diagram"
+      class="stage-diagram repository-diagram"
       :class="{
         'has-history': presentation.state.commits.length,
         'branch-graph': branchHistory,
@@ -661,6 +655,12 @@ watch(
         </g>
       </g>
     </svg>
+    <p v-if="reducedMotion" id="motion-reason" class="motion-reason text-label">
+      Unavailable with reduced motion.
+    </p>
+    <p v-if="branchHistory" class="branch-head font-bold" data-head-readout>
+      {{ gitStatus(state) }}
+    </p>
     <dl
       v-if="!branchHistory"
       class="zone-summary"

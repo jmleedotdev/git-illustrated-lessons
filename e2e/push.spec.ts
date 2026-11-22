@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { documentBounds } from './document-bounds.js'
+
 const push = '/push-the-work/'
 
 test('opens each push step independently and shows the hosted snapshot without publishing ideas as a branch', async ({
@@ -94,14 +96,36 @@ test('push moves hosted copies while local history stays put, and Replay can be 
   await expect(page).toHaveURL(push + '2')
 })
 
-test('the phone text scene communicates the push and the guide clears the fixed bar', async ({
+test('a wrapped caption grows the canvas without moving the phone stage', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 700 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto(push + '3')
+  await page.evaluate(() => document.fonts.ready.then(() => undefined))
+  const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
+  const diagram = figure.getByRole('img')
+  const caption = figure.locator('figcaption')
+  const stage = await documentBounds(diagram)
+  const figureHeight = (await figure.boundingBox())!.height
+  const captionHeight = (await caption.boundingBox())!.height
+
+  await page.getByRole('button', { name: /^Step 2:/ }).click()
+  expect(await documentBounds(diagram)).toEqual(stage)
+  expect((await figure.boundingBox())!.height).toBeGreaterThan(figureHeight)
+  expect((await caption.boundingBox())!.height).toBeGreaterThan(captionHeight)
+  await caption.scrollIntoViewIfNeeded()
+  const bar = page.getByRole('navigation', { name: 'Walkthrough' })
+  const box = (await caption.boundingBox())!
+  expect(box.y + box.height).toBeLessThan((await bar.boundingBox())!.y)
+})
+
+test('the phone diagram has a readable push summary and the guide clears the fixed bar', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 700 })
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto(push + '2')
   const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
-  await expect(figure.getByRole('img')).toBeHidden()
+  await expect(figure.getByRole('img')).toBeVisible()
   await expect(figure.getByText(/Push sent main’s history/)).toBeVisible()
   await expect(figure.getByText(/main → c5 · c1–c5/)).toHaveCSS('font-size', '16px')
   await expect(figure.getByRole('button', { name: 'Replay' })).toBeDisabled()

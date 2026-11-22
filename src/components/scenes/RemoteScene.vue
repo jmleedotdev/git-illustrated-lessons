@@ -159,19 +159,16 @@ watchPostEffect((onCleanup) => {
       <span class="lesson-pill">TWO PLACES, ONE HISTORY</span>
       <button
         type="button"
-        class="stage-animation-control remote-replay ml-auto"
+        class="stage-animation-control ml-auto"
         :disabled="!!replayUnavailable"
         :aria-describedby="replayUnavailable ? 'remote-motion-reason' : undefined"
         @click="$emit('replay')"
       >
         Replay
       </button>
-      <p v-if="replayUnavailable" id="remote-motion-reason" class="motion-reason text-label">
-        {{ replayUnavailable }}
-      </p>
     </div>
     <svg
-      class="repository-diagram remote-diagram fill-charcoal"
+      class="stage-diagram fill-charcoal"
       viewBox="0 0 900 420"
       role="img"
       aria-label="Local and GitHub repository diagram"
@@ -304,6 +301,9 @@ watchPostEffect((onCleanup) => {
         </text>
       </g>
     </svg>
+    <p v-if="replayUnavailable" id="remote-motion-reason" class="motion-reason text-label">
+      {{ replayUnavailable }}
+    </p>
     <div class="remote-compact story-text">
       <p>
         <strong>Alice’s computer</strong><br />{{ head }}<br />* {{ state.head }} is current · ideas
@@ -332,24 +332,10 @@ watchPostEffect((onCleanup) => {
 </template>
 
 <style scoped>
-@media (width > 1100px) and (height > 760px) {
-  /* Keep the SVG stationary when the Replay reason appears or disappears. */
-  .motion-reason {
-    flex-basis: auto;
-    margin-inline-start: auto;
-  }
-  .stage-top:has(.motion-reason) .remote-replay {
-    order: 1;
-    margin-inline-start: 0;
-  }
-}
 .remote-compact {
   display: none;
 }
 @media (max-width: 1100px), (max-height: 760px) {
-  .repository-diagram.remote-diagram {
-    display: none;
-  }
   .remote-compact {
     display: grid;
     gap: var(--spacing-inset);
@@ -362,7 +348,6 @@ watchPostEffect((onCleanup) => {
 }
 @media (width > 1100px) and (max-height: 760px) {
   .remote-compact {
-    flex: 1;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
   }
@@ -371,11 +356,6 @@ watchPostEffect((onCleanup) => {
   }
   .remote-compact > :last-child {
     grid-column: 3;
-  }
-}
-@media (width > 760px) and (max-width: 1100px) {
-  .remote-stage {
-    flex-basis: auto;
   }
 }
 </style>

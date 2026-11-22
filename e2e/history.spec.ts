@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test'
 
+import { documentBounds } from './document-bounds.js'
+
 test('opens every commit and history step independently and inspects without checking out', async ({
   page,
 }) => {
@@ -91,11 +93,12 @@ test('keeps history and keyboard inspection reachable on a narrow phone and shor
   const history = figure.getByRole('list', { name: 'Commit history' })
   const scene = figure.getByRole('img', { name: /Repository scene/ })
   await expect(scene).toHaveAccessibleDescription(/c2.*parent.*c1.*no parent.*HEAD.*main/i)
+  await expect(scene.getByText('* main', { exact: true })).toBeVisible()
   await expect(history).toContainText('* main')
   await expect(history).toContainText('Parent: c1')
   await expect(history).toContainText('Root · no parent')
   await expect(
-    figure.getByText('Version C · Clean', { exact: true }).filter({ visible: true }),
+    figure.getByRole('definition').filter({ hasText: 'Version C · Clean' }),
   ).toBeVisible()
   await expect(page.getByText(/^Alice runs git log/)).toHaveCSS('font-size', '16px')
   const bar = page.getByRole('navigation', { name: 'Walkthrough' })
@@ -126,6 +129,21 @@ test('keeps history and keyboard inspection reachable on a narrow phone and shor
   await timeline.scrollIntoViewIfNeeded()
   await expect(timeline).toBeInViewport({ ratio: 1 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(1200)
+})
+
+test('opening a snapshot inspector on desktop leaves the stage in place', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 })
+  await page.goto('/read-the-history/4')
+  await page.evaluate(() => document.fonts.ready.then(() => undefined))
+  const figure = page.getByRole('figure', { name: 'Repository illustration' })
+  const diagram = figure.getByRole('img')
+  const stage = await documentBounds(diagram)
+  const figureHeight = (await figure.boundingBox())!.height
+
+  await figure.getByText('Inspect recorded snapshots', { exact: true }).click()
+  await expect(figure.getByRole('region', { name: 'Recorded snapshot inspector' })).toBeVisible()
+  expect(await documentBounds(diagram)).toEqual(stage)
+  expect((await figure.boundingBox())!.height).toBeGreaterThan(figureHeight)
 })
 
 test('reads history newest first with the standard sphere fade duration', async ({ page }) => {
