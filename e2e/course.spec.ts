@@ -14,7 +14,7 @@ const curriculum = [
   ['push-the-work', 'Push the work', 3],
 ] as const
 
-const lessonUrl = (slug: string, step = 1) => `/#/${slug}/${step}`
+const lessonUrl = (slug: string, step = 1) => `/${slug}/${step}`
 
 test('walks the approved course in order using only the reader’s navigation', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })

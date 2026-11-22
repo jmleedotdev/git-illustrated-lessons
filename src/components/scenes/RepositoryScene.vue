@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, shallowRef, ref, watch } from 'vue'
-import {
-  checkoutTip,
-  type FileContents,
-  type LessonStep,
-  type RepositoryState,
-} from '../lessons/lesson'
-import type { Presentation } from '../player/createPlayer'
+import type { FileContents, LessonStep, RepositoryState } from '@/types/lesson'
+import { checkoutTip } from '@/utils/checkoutTip'
+import type { Presentation } from '@/composables/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import CommitSphere from './CommitSphere.vue'
 import { describeParents } from './describeParents'

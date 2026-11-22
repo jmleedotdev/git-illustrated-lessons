@@ -1,4 +1,5 @@
-import { freezeLesson, type RemoteSetup, type RepositoryState } from './lesson'
+import type { RemoteSetup, RepositoryState } from '@/types/lesson'
+import { freezeLesson } from './freezeLesson'
 import { editedNote, ideaFile, newerNote, revisedNote } from './notes'
 
 // Authored from the post-merge snapshot contract, not from another lesson's playback.

@@ -12,7 +12,7 @@ it('reports literal lesson colors at their source and accepts shared tokens', ()
   const runCheck = () => spawnSync(process.execPath, [checker], { cwd: root, encoding: 'utf8' })
   const writeSources = (color: string) => {
     writeFileSync(
-      join(root, 'src/styles/main.css'),
+      join(root, 'src/assets/css/main.css'),
       `@theme static { --color-git: #f05032; }
 #bad { background: ${color}; }
 `,
@@ -38,13 +38,13 @@ path { color: ${color}; }
     )
   }
   try {
-    mkdirSync(join(root, 'src/styles'), { recursive: true })
+    mkdirSync(join(root, 'src/assets/css'), { recursive: true })
     mkdirSync(join(root, 'public'))
     writeSources('#f05032')
     const failure = runCheck()
     expect(failure.status).toBe(1)
     expect(failure.stderr).toContain(
-      'src/styles/main.css:2:20 Use a shared color token for #f05032',
+      'src/assets/css/main.css:2:20 Use a shared color token for #f05032',
     )
     expect(failure.stderr).toContain('src/Scene.vue:3:21 Use a shared color token for #f05032')
     expect(failure.stderr).toContain('src/Scene.vue:3:48 Use a shared color token for #f05032')

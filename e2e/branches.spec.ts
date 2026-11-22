@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const url = (step: number) => `/#/create-and-switch-branches/${step}`
+const url = (step: number) => `/create-and-switch-branches/${step}`
 
 for (const viewport of [
   { width: 1440, height: 900, compact: false },
@@ -86,7 +86,7 @@ test('inspects the ideas commit by keyboard without leaving the main checkout on
   await expect(
     figure.getByRole('list', { name: 'Working directory' }).getByText('ideas.txt'),
   ).toHaveCount(0)
-  await expect(page).toHaveURL(/#\/create-and-switch-branches\/6$/)
+  await expect(page).toHaveURL(/\/create-and-switch-branches\/6$/)
 })
 
 test('replays branch changes from direct entry and cancels on selection and live reduced motion', async ({

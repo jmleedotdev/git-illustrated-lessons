@@ -1,28 +1,7 @@
 <script setup lang="ts">
-import { lessons } from './lessons/catalog'
-import RemoteScene from './scenes/RemoteScene.vue'
-import RepositoryScene from './scenes/RepositoryScene.vue'
-import LessonShell from './ui/LessonShell.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <LessonShell :lessons="lessons">
-    <template #scene="{ finalCommitCount, presentation, description, replay, reducedMotion }">
-      <RemoteScene
-        v-if="presentation.state.remoteSetup"
-        :presentation="presentation"
-        :description="description"
-        :reduced-motion="reducedMotion"
-        @replay="replay"
-      />
-      <RepositoryScene
-        v-else
-        :presentation="presentation"
-        :final-commit-count="finalCommitCount"
-        :description="description"
-        :reduced-motion="reducedMotion"
-        @replay="replay"
-      />
-    </template>
-  </LessonShell>
+  <RouterView />
 </template>

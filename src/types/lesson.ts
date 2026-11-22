@@ -37,10 +37,6 @@ export interface RepositoryState {
   readonly remoteSetup?: RemoteSetup
 }
 
-export function checkoutTip(state: RepositoryState) {
-  return state.head ? state.branches?.[state.head] : undefined
-}
-
 export interface LessonStep {
   readonly label: string
   readonly title: string
@@ -80,15 +76,4 @@ export interface Lesson {
   readonly topic: string
   readonly mentalModel: readonly string[]
   readonly steps: readonly LessonStep[]
-}
-
-export function freezeLesson(lesson: Lesson): Lesson {
-  function freeze(value: unknown) {
-    if (value && typeof value === 'object' && !Object.isFrozen(value)) {
-      Object.values(value).forEach(freeze)
-      Object.freeze(value)
-    }
-  }
-  freeze(lesson)
-  return lesson
 }

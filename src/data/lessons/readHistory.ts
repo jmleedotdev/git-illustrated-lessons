@@ -1,5 +1,6 @@
 import { afterFirstCommit } from './recordCommit'
-import { freezeLesson, type RepositoryState } from './lesson'
+import type { RepositoryState } from '@/types/lesson'
+import { freezeLesson } from './freezeLesson'
 import { newerNote } from './notes'
 
 const staged: RepositoryState = { ...afterFirstCommit, staged: [newerNote] }

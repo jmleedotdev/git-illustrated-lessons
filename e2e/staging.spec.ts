@@ -15,12 +15,12 @@ test('plays the opening step at launch and when choosing Next lesson', async ({ 
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   await page.goto('/')
   await expect(scene).toHaveAttribute('aria-busy', 'true')
-  await expect(page).toHaveURL(/#\/start-a-repository\/1$/)
+  await expect(page).toHaveURL(/\/start-a-repository\/1$/)
   await page.reload()
   await expect(scene).toHaveAttribute('aria-busy', 'true')
-  await page.goto('/#/start-a-repository/3')
+  await page.goto('/start-a-repository/3')
   await page.getByRole('link', { name: 'Next: Edit and inspect' }).click()
-  await expect(page).toHaveURL(/#\/edit-and-inspect\/1$/)
+  await expect(page).toHaveURL(/\/edit-and-inspect\/1$/)
   await expect(scene).toHaveAttribute('aria-busy', 'true')
   await page.goBack()
   await page.goForward()
@@ -35,7 +35,7 @@ test('fully fades out the Edit and inspect status caption before restoring it', 
 }) => {
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   const caption = scene.getByRole('img', { name: sceneName }).getByText('Version B · Untracked')
-  await page.goto('/#/edit-and-inspect/1')
+  await page.goto('/edit-and-inspect/1')
   await page.getByRole('button', { name: 'Next', exact: true }).click()
   await expect(scene).toHaveAttribute('aria-busy', 'true')
   await expect
@@ -46,7 +46,7 @@ test('fully fades out the Edit and inspect status caption before restoring it', 
   await expect(caption).toHaveCSS('opacity', '0')
   await expect(scene).toHaveAttribute('aria-busy', 'false')
   await expect(caption).toHaveCSS('opacity', '1')
-  await expect(page).toHaveURL(/#\/edit-and-inspect\/2$/)
+  await expect(page).toHaveURL(/\/edit-and-inspect\/2$/)
 
   const replay = scene.getByRole('button', { name: 'Replay' })
   await replay.click()
@@ -65,7 +65,7 @@ test('opens every editing and staging step in its completed state', async ({ pag
     ['choose-what-to-stage', stagingSteps],
   ] as const) {
     for (const [index, [title, working, staging]] of steps.entries()) {
-      await page.goto(`/#/${slug}/${index + 1}`)
+      await page.goto(`/${slug}/${index + 1}`)
       await expect(page.getByRole('heading', { name: title, exact: true })).toBeVisible()
       await expect(page.getByRole('status')).toContainText(`Step ${index + 1} of ${steps.length}`)
       await expect(page.getByText('Before you begin', { exact: true })).toHaveCount(0)
@@ -86,7 +86,7 @@ test('shows Previous lesson only at step one and opens the preceding lesson’s 
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 700 })
-  await page.goto('/#/choose-what-to-stage/2')
+  await page.goto('/choose-what-to-stage/2')
   const previous = page.getByRole('link', { name: /^Previous:/ })
   const bar = page.getByRole('navigation', { name: 'Walkthrough' })
   const back = bar.getByRole('button', { name: 'Back' })
@@ -94,7 +94,7 @@ test('shows Previous lesson only at step one and opens the preceding lesson’s 
   await back.click()
   await expect(back).toBeDisabled()
   await expect(previous).toHaveText('Previous: Edit and inspect')
-  await expect(previous).toHaveAttribute('href', '#/edit-and-inspect/1')
+  await expect(previous).toHaveAttribute('href', '/edit-and-inspect/1')
   await bar.getByRole('button', { name: 'Next' }).press('Tab')
   await expect(previous).toBeFocused()
   await expect
@@ -104,17 +104,17 @@ test('shows Previous lesson only at step one and opens the preceding lesson’s 
     })
     .toBeLessThan((await bar.boundingBox())!.y)
   await previous.press('Enter')
-  await expect(page).toHaveURL(/#\/edit-and-inspect\/1$/)
+  await expect(page).toHaveURL(/\/edit-and-inspect\/1$/)
   await expect(page.getByRole('heading', { name: 'Edit and inspect', exact: true })).toBeFocused()
   await expect(previous).toHaveText('Previous: Start a repository')
   await page.goBack()
   await expect(previous).toHaveText('Previous: Edit and inspect')
-  await page.goto('/#/start-a-repository/1')
+  await page.goto('/start-a-repository/1')
   await expect(previous).toHaveCount(0)
 })
 
 test('switches lessons by keyboard and by a separate Next lesson action', async ({ page }) => {
-  await page.goto('/#/choose-what-to-stage/3')
+  await page.goto('/choose-what-to-stage/3')
   await page.keyboard.press('Tab')
   const lessons = page.getByRole('button', { name: 'Lessons', exact: true })
   await expect(lessons).toBeFocused()
@@ -127,30 +127,30 @@ test('switches lessons by keyboard and by a separate Next lesson action', async 
   await page.keyboard.press('Enter')
   await expect(list).toBeHidden()
   await expect(lessons).toBeFocused()
-  await expect(page).toHaveURL(/#\/edit-and-inspect\/1$/)
+  await expect(page).toHaveURL(/\/edit-and-inspect\/1$/)
   await expect(page.getByRole('button', { name: 'Back', exact: true })).toBeDisabled()
   await page.keyboard.press('ArrowRight')
   await expect(page.getByLabel('Git command')).toHaveText('git status')
   await expect(page.getByRole('button', { name: 'Next', exact: true })).toBeDisabled()
   const nextLesson = page.getByRole('link', { name: 'Next: Choose what to stage' })
-  await expect(nextLesson).toHaveAttribute('href', '#/choose-what-to-stage/1')
+  await expect(nextLesson).toHaveAttribute('href', '/choose-what-to-stage/1')
   await nextLesson.press('Enter')
-  await expect(page).toHaveURL(/#\/choose-what-to-stage\/1$/)
+  await expect(page).toHaveURL(/\/choose-what-to-stage\/1$/)
   await expect(
     page.getByRole('heading', { name: 'Choose what to stage', exact: true }),
   ).toBeFocused()
   await expect(page.getByRole('status')).toContainText('Step 1 of 3')
   await page.goBack()
-  await expect(page).toHaveURL(/#\/edit-and-inspect\/2$/)
+  await expect(page).toHaveURL(/\/edit-and-inspect\/2$/)
   await page.goForward()
   await page.reload()
-  await expect(page).toHaveURL(/#\/choose-what-to-stage\/1$/)
+  await expect(page).toHaveURL(/\/choose-what-to-stage\/1$/)
 })
 
 test('Next and Replay send a copy to staging while the working file stays visible', async ({
   page,
 }) => {
-  await page.goto('/#/choose-what-to-stage/1')
+  await page.goto('/choose-what-to-stage/1')
   const illustration = page.getByRole('figure', { name: 'Repository illustration' })
   const scene = page.getByRole('img', { name: sceneName })
   const next = page.getByRole('button', { name: 'Next', exact: true })
@@ -186,7 +186,7 @@ test('Next and Replay send a copy to staging while the working file stays visibl
     await expect(illustration).toHaveAttribute('aria-busy', 'false')
     await expect(workingAfter).toBeVisible()
     await expect(staged).toBeVisible()
-    await expect(page).toHaveURL(/#\/choose-what-to-stage\/2$/)
+    await expect(page).toHaveURL(/\/choose-what-to-stage\/2$/)
   }
   await next.click()
   await expect(illustration).toHaveAttribute('aria-busy', 'true')
@@ -199,7 +199,7 @@ test('Next and Replay send a copy to staging while the working file stays visibl
 test('direct-entry Replay stops cleanly on navigation and live reduced motion', async ({
   page,
 }) => {
-  await page.goto('/#/choose-what-to-stage/2')
+  await page.goto('/choose-what-to-stage/2')
   const illustration = page.getByRole('figure', { name: 'Repository illustration' })
   const scene = page.getByRole('img', { name: sceneName })
   const replay = page.getByRole('button', { name: 'Replay' })
@@ -222,14 +222,14 @@ test('direct-entry Replay stops cleanly on navigation and live reduced motion', 
   await expect(illustration).toHaveAttribute('aria-busy', 'false')
   await expect.poll(animationCount).toBe(0)
   await expect(staged).toBeVisible()
-  await expect(page).toHaveURL(/#\/choose-what-to-stage\/2$/)
+  await expect(page).toHaveURL(/\/choose-what-to-stage\/2$/)
 })
 
 test('keeps distinct versions readable on phones and the guide reachable on short desktops', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/#/choose-what-to-stage/3')
+  await page.goto('/choose-what-to-stage/3')
   const figure = page.getByRole('figure', { name: 'Repository illustration' })
   const working = figure
     .getByText('Version C · Unstaged edit', { exact: true })
@@ -242,7 +242,7 @@ test('keeps distinct versions readable on phones and the guide reachable on shor
   expect((await figure.boundingBox())!.y).toBeLessThan((await story.boundingBox())!.y)
 
   await page.setViewportSize({ width: 320, height: 700 })
-  await page.goto('/#/edit-and-inspect/2')
+  await page.goto('/edit-and-inspect/2')
   const nextLesson = page.getByRole('link', { name: 'Next: Choose what to stage' })
   const bar = page.getByRole('navigation', { name: 'Walkthrough' })
   await expect(bar).toHaveCSS('position', 'fixed')
@@ -260,7 +260,7 @@ test('keeps distinct versions readable on phones and the guide reachable on shor
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
 
   await page.setViewportSize({ width: 1200, height: 560 })
-  await page.goto('/#/choose-what-to-stage/3')
+  await page.goto('/choose-what-to-stage/3')
   const guide = page.getByRole('region', { name: 'Alice makes another edit.' })
   const sceneBounds = (await figure.boundingBox())!
   expect(sceneBounds.x + sceneBounds.width).toBeLessThan((await guide.boundingBox())!.x)

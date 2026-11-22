@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Commit } from '../lessons/lesson'
+import type { Commit } from '@/types/lesson'
 
 defineProps<{ commit: Commit; current: boolean; labelOffset?: number; compact?: boolean }>()
 </script>

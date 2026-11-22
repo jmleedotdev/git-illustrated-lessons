@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import type { Lesson } from '../lessons/lesson'
-import { createPlayer, type Presentation } from '../player/createPlayer'
-import InlineText from './InlineText.vue'
+import type { Lesson } from '@/types/lesson'
+import type { Presentation } from '@/composables/createPlayer'
+import { useRoutedPlayer } from '@/composables/useRoutedPlayer'
+import InlineText from '../ui/InlineText.vue'
 
-const props = defineProps<{ lessons: readonly Lesson[] }>()
+const props = defineProps<{ lessons: readonly Lesson[]; playOpeningStep: boolean }>()
 defineSlots<{
   scene(props: {
     finalCommitCount: number
@@ -14,7 +15,7 @@ defineSlots<{
     reducedMotion: boolean
   }): unknown
 }>()
-const player = createPlayer(props.lessons)
+const { player, lessonHref } = useRoutedPlayer(props.lessons)
 const {
   lesson,
   step,
@@ -32,15 +33,8 @@ const lessonList = ref<HTMLElement>()
 const guideContent = ref<HTMLElement>()
 const lessonHeading = ref<HTMLHeadingElement>()
 const navigation = ref<HTMLElement>()
-let restoring = false
 function formatLessonNumber(index: number) {
   return String(index + 1).padStart(2, '0')
-}
-function restore() {
-  restoring = true
-  player.restore(window.location.hash)
-  if (window.location.hash !== player.hash.value) history.replaceState(null, '', player.hash.value)
-  restoring = false
 }
 function closeLessons() {
   listOpen.value = false
@@ -49,16 +43,16 @@ function closeLessons() {
 function modifiedClick(event: MouseEvent) {
   return event.altKey || event.ctrlKey || event.metaKey || event.shiftKey
 }
-function openLesson(event: MouseEvent, slug: string) {
+async function openLesson(event: MouseEvent, slug: string) {
   if (modifiedClick(event)) return
   event.preventDefault()
-  player.openLesson(slug)
+  await player.openLesson(slug)
   closeLessons()
 }
-async function openAdjacentLesson(event: MouseEvent, open: () => void) {
+async function openAdjacentLesson(event: MouseEvent, open: () => void | Promise<void>) {
   if (modifiedClick(event)) return
   event.preventDefault()
-  open()
+  await open()
   await nextTick()
   lessonHeading.value?.focus()
 }
@@ -104,15 +98,13 @@ function revealFocusedControl(event: FocusEvent) {
     }
   })
 }
-const playsOpeningStep = !window.location.hash || window.location.hash === player.hash.value
-restore()
 watch(
-  player.hash,
-  (hash) => {
+  () => [location.value.slug, location.value.step] as const,
+  ([slug, step], [previousSlug, previousStep]) => {
+    if (slug === previousSlug && step === previousStep) return
     if (guideContent.value && !guideContent.value.contains(document.activeElement)) {
       guideContent.value.scrollTop = 0
     }
-    if (!restoring && window.location.hash !== hash) history.pushState(null, '', hash)
   },
   { flush: 'sync' },
 )
@@ -123,15 +115,11 @@ function motionChanged() {
 onMounted(() => {
   media = window.matchMedia('(prefers-reduced-motion: reduce)')
   motionChanged()
-  if (playsOpeningStep) player.replay()
-  window.addEventListener('hashchange', restore)
-  window.addEventListener('popstate', restore)
+  if (props.playOpeningStep) player.replay()
   window.addEventListener('keydown', keyboard)
   media.addEventListener('change', motionChanged)
 })
 onUnmounted(() => {
-  window.removeEventListener('hashchange', restore)
-  window.removeEventListener('popstate', restore)
   window.removeEventListener('keydown', keyboard)
   media?.removeEventListener('change', motionChanged)
 })
@@ -164,7 +152,7 @@ onUnmounted(() => {
       <ul>
         <li v-for="(item, index) in lessons" :key="item.slug">
           <a
-            :href="`#/${item.slug}/1`"
+            :href="lessonHref(item.slug)"
             :aria-current="item.slug === lesson.slug ? 'page' : undefined"
             @click="openLesson($event, item.slug)"
           >
@@ -298,7 +286,7 @@ onUnmounted(() => {
           </nav>
           <a
             v-if="!canBack && previousLesson"
-            :href="`#/${previousLesson.slug}/1`"
+            :href="lessonHref(previousLesson.slug)"
             class="control mt-2"
             @click="openAdjacentLesson($event, player.openPreviousLesson)"
           >
@@ -306,7 +294,7 @@ onUnmounted(() => {
           </a>
           <a
             v-if="!canNext && nextLesson"
-            :href="`#/${nextLesson.slug}/1`"
+            :href="lessonHref(nextLesson.slug)"
             class="control mt-2"
             @click="openAdjacentLesson($event, player.openNextLesson)"
           >

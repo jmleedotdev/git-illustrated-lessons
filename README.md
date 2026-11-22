@@ -4,11 +4,17 @@ An illustrated Git learning website built with Vue, TypeScript, Vite, and Tailwi
 
 Use Node `^22.18.0 || >=24.12.0` (verified on **24.22.2**) and **pnpm 12.14.0**, pinned in `package.json`. Commit `pnpm-lock.yaml` to keep installs reproducible. Existing planning documents stay in `.scratch/`; the disposable prototype is not the production source.
 
-The lesson player uses browser hash locations. Shared design tokens live in `src/styles/main.css`. See [scaffolding and dependency findings](.scratch/git-visual-guide-foundation/issues/01-scaffold-vue-with-human-controlled-setup.md#verification).
+Vue Router owns lesson URLs (`/lesson-slug/step`). The local player in `src/composables/` owns presentation and Replay; there is no global store. Authored lessons live in `src/data/lessons/`, and `src/views/LessonView.vue` composes the lesson screen from `src/components/`.
+
+Shared design tokens live in `src/assets/css/main.css`. See [scaffolding and dependency findings](.scratch/git-visual-guide-foundation/issues/01-scaffold-vue-with-human-controlled-setup.md#verification).
+
+## Deployment
+
+When deploying `dist/`, configure the host to serve `index.html` for lesson paths that don’t match a static file. Cloudflare Pages does this by default when there is no top-level `404.html`. Open `/start-a-repository/2` directly on the deployed site and refresh it to verify the fallback.
 
 ## Development design showcase
 
-Run `pnpm dev` and open **http://localhost:5173/__design/** (use the port Vite prints if 5173 is occupied). This is a separate development-server entry, not a production route. Use Tab and hover to inspect control states. The shared tokens, control/code treatments, and font declarations live in `src/styles/main.css`; the samples live in `src/dev/` and are not imported by the production app.
+Run `pnpm dev` and open **http://localhost:5173/__design/** (use the port Vite prints if 5173 is occupied). This is a separate development-server entry, not a production route. Use Tab and hover to inspect control states. The shared tokens, control/code treatments, and font declarations live in `src/assets/css/main.css`; the samples live in `src/dev/` and are not imported by the production app.
 
 JetBrains Mono regular and bold are self-hosted, unmodified upstream WOFF2 files from [JetBrains/JetBrainsMono](https://github.com/JetBrains/JetBrainsMono/tree/master/fonts/webfonts). Their SIL Open Font License and copyright are retained in `public/fonts/OFL.txt` and shipped at `/fonts/OFL.txt`. No external font host is used.
 

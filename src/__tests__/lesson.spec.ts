@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest'
-import { lessons } from '../lessons/catalog'
-import { createPlayer } from '../player/createPlayer'
-import { chooseWhatToStage } from '../lessons/chooseWhatToStage'
-import { editAndInspect } from '../lessons/editAndInspect'
-import { startRepository } from '../lessons/startRepository'
+import { lessons } from '@/data/lessons/catalog'
+import { createPlayer } from '@/composables/createPlayer'
+import { chooseWhatToStage } from '@/data/lessons/chooseWhatToStage'
+import { editAndInspect } from '@/data/lessons/editAndInspect'
+import { startRepository } from '@/data/lessons/startRepository'
 
 it('initializes main without tracking the existing file or inventing history', () => {
   const [folder, initialize, inspect] = startRepository.steps
@@ -69,7 +69,7 @@ it('stages a copy of the edited note and keeps that version after another edit',
 
 it('records only the staged contents in the root commit without clearing staging', () => {
   const player = createPlayer(lessons)
-  player.restore('#/record-a-commit/1')
+  player.show({ slug: 'record-a-commit', step: 1 })
   const opening = player.presentation.value.state
   expect(opening.commits).toEqual([])
   expect(opening.working[0]?.version).toBe('C')
@@ -97,7 +97,7 @@ it('records only the staged contents in the root commit without clearing staging
 
 it('opens history independently at c1 and ends clean after recording and reading c2', () => {
   const player = createPlayer(lessons)
-  player.restore('#/read-the-history/1')
+  player.show({ slug: 'read-the-history', step: 1 })
   expect(player.location.value.slug).toBe('read-the-history')
   const opening = player.presentation.value.state
   expect(opening.commits.map(({ id }) => id)).toEqual(['c1'])
@@ -137,7 +137,7 @@ it('opens history independently at c1 and ends clean after recording and reading
 
 it('opens Bring work together independently with a clean main and the ideas snapshot intact', () => {
   const player = createPlayer(lessons)
-  player.restore('#/bring-work-together/1')
+  player.show({ slug: 'bring-work-together', step: 1 })
   expect(player.location.value.slug).toBe('bring-work-together')
   expect(player.presentation.value.transition).toBeNull()
   const opening = player.presentation.value.state
@@ -171,7 +171,7 @@ it('opens Bring work together independently with a clean main and the ideas snap
 
 it('edits, stages, then records diverging notes on main without moving ideas', () => {
   const player = createPlayer(lessons)
-  player.restore('#/bring-work-together/1')
+  player.show({ slug: 'bring-work-together', step: 1 })
   const opening = player.presentation.value.state
   const revised = {
     name: 'notes.txt',
@@ -195,7 +195,7 @@ it('edits, stages, then records diverging notes on main without moving ideas', (
 
 it('joins both histories in order and ends with a clean main without deleting ideas', () => {
   const player = createPlayer(lessons)
-  player.restore('#/bring-work-together/4')
+  player.show({ slug: 'bring-work-together', step: 4 })
   const diverged = player.presentation.value.state
   player.next()
   expect(player.step.value.action?.text).toBe('git merge ideas')
@@ -210,7 +210,7 @@ it('joins both histories in order and ends with a clean main without deleting id
   })
 
   const direct = createPlayer(lessons)
-  direct.restore('#/bring-work-together/5')
+  direct.show({ slug: 'bring-work-together', step: 5 })
   expect(direct.presentation.value).toMatchObject({ state: merged, transition: null })
   direct.replay()
   expect(direct.presentation.value.transition).toMatchObject({ before: diverged, after: merged })
@@ -218,7 +218,7 @@ it('joins both histories in order and ends with a clean main without deleting id
 
 it('creates a second reference to c2 without switching or copying the checkout', () => {
   const player = createPlayer(lessons)
-  player.restore('#/create-and-switch-branches/1')
+  player.show({ slug: 'create-and-switch-branches', step: 1 })
   expect(player.location.value.slug).toBe('create-and-switch-branches')
   const { before, after } = player.step.value.transition
   expect(before).toMatchObject({ head: 'main', branches: { main: 'c2' } })
@@ -236,7 +236,7 @@ it('creates a second reference to c2 without switching or copying the checkout',
 
 it('advances only ideas and restores the clean main checkout without losing c3', () => {
   const player = createPlayer(lessons)
-  player.restore('#/create-and-switch-branches/1')
+  player.show({ slug: 'create-and-switch-branches', step: 1 })
   const created = player.presentation.value.state
   player.next()
   const switched = player.presentation.value.state

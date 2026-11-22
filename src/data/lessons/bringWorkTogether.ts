@@ -1,5 +1,6 @@
 import { afterReturningToMain } from './createAndSwitchBranches'
-import { freezeLesson, type RepositoryState } from './lesson'
+import type { RepositoryState } from '@/types/lesson'
+import { freezeLesson } from './freezeLesson'
 import { ideaFile, revisedNote } from './notes'
 
 const opening = afterReturningToMain

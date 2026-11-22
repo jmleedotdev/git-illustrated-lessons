@@ -1,5 +1,6 @@
 import { editedAgain as selected } from './chooseWhatToStage'
-import { freezeLesson, type RepositoryState } from './lesson'
+import type { RepositoryState } from '@/types/lesson'
+import { freezeLesson } from './freezeLesson'
 
 export const afterFirstCommit: RepositoryState = {
   ...selected,

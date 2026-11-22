@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import FoldedPage from '../scenes/FoldedPage.vue'
+import FoldedPage from '@/components/scenes/FoldedPage.vue'
 
 const palette = [
   { name: 'Paper', token: 'paper', class: 'bg-paper' },

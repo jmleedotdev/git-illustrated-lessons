@@ -1,27 +1,14 @@
 import { expect, it } from 'vitest'
-import { createPlayer } from '../player/createPlayer'
-import { lessons } from '../lessons/catalog'
+import { createPlayer } from '@/composables/createPlayer'
+import { lessons } from '@/data/lessons/catalog'
 
-it('restores and normalizes hash locations without requesting motion', () => {
+it('shows a restored step without motion and can replay it on request', () => {
   const player = createPlayer(lessons)
-  player.restore('#/start-a-repository/2')
+  player.show({ slug: 'start-a-repository', step: 2 })
   expect(player.location.value.step).toBe(2)
   expect(player.presentation.value.transition).toBeNull()
   player.replay()
   expect(player.presentation.value.transition?.kind).toBe('initialize')
-  for (const hash of [
-    '',
-    '#/unknown/2',
-    '#/start-a-repository/0',
-    '#/start-a-repository/2.5',
-    '#/start-a-repository/2/extra',
-    '#/%/1',
-    '#/start-a-repository/99',
-  ]) {
-    player.restore(hash)
-    expect(player.hash.value).toBe('#/start-a-repository/1')
-    expect(player.presentation.value.transition).toBeNull()
-  }
 })
 
 it('requests motion for Back, Next, and Replay within a lesson', () => {

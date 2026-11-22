@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest'
-import { lessons } from '../lessons/catalog'
-import type { RepositoryState } from '../lessons/lesson'
-import { createPlayer } from '../player/createPlayer'
+import { lessons } from '@/data/lessons/catalog'
+import type { RepositoryState } from '@/types/lesson'
+import { createPlayer } from '@/composables/createPlayer'
 
 const notesB = {
   name: 'notes.txt',
@@ -47,7 +47,7 @@ function expectCleanLocalHistory(state: RepositoryState) {
 
 it('creates an empty GitHub repository without changing local history or configuring a remote', () => {
   const player = createPlayer(lessons)
-  player.restore('#/create-a-remote-repository/1')
+  player.show({ slug: 'create-a-remote-repository', step: 1 })
   expect(player.lesson.value.title).toBe('Create a remote repository')
   const opening = player.presentation.value.state
   expectCleanLocalHistory(opening)
@@ -63,13 +63,13 @@ it('creates an empty GitHub repository without changing local history or configu
 
 it('opens the empty hosted repository independently and stores only the origin address', () => {
   const player = createPlayer(lessons)
-  player.restore('#/connect-local-and-remote/1')
+  player.show({ slug: 'connect-local-and-remote', step: 1 })
   expect(player.lesson.value.title).toBe('Connect local and remote')
   const opening = player.presentation.value.state
   expectCleanLocalHistory(opening)
   expect(opening.remoteSetup).toEqual({ hosted: emptyHosted, origin: null, upstream: null })
 
-  player.restore('#/connect-local-and-remote/2')
+  player.show({ slug: 'connect-local-and-remote', step: 2 })
   expect(player.presentation.value.transition).toBeNull()
   const configured = player.presentation.value.state
   expectCleanLocalHistory(configured)
@@ -90,7 +90,7 @@ it('opens the empty hosted repository independently and stores only the origin a
 
 it('publishes main’s committed ancestry and sets its upstream without publishing a separate ideas branch', () => {
   const player = createPlayer(lessons)
-  player.restore('#/push-the-work/1')
+  player.show({ slug: 'push-the-work', step: 1 })
   expect(player.lesson.value.title).toBe('Push the work')
   const opening = player.presentation.value.state
   expectCleanLocalHistory(opening)
@@ -117,7 +117,7 @@ it('publishes main’s committed ancestry and sets its upstream without publishi
   expect(player.step.value.action?.text).toBe('git push -u origin main')
   expect(player.step.value.idea).toMatch(/not uncommitted working-directory or staged contents/)
 
-  player.restore('#/push-the-work/3')
+  player.show({ slug: 'push-the-work', step: 3 })
   expect(player.presentation.value.state).toEqual(publication.state)
   expect(player.step.value.story).toMatch(/`notes\.txt` and `ideas\.txt`.*`c5`/)
   expect(player.canNext.value).toBe(false)

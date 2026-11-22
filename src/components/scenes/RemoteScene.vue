@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watchPostEffect } from 'vue'
-import { checkoutTip, type Commit } from '../lessons/lesson'
-import type { Presentation } from '../player/createPlayer'
+import type { Commit } from '@/types/lesson'
+import { checkoutTip } from '@/utils/checkoutTip'
+import type { Presentation } from '@/composables/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import CommitSphere from './CommitSphere.vue'
 

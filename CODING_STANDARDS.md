@@ -16,8 +16,8 @@ docs: record visual foundations approval and resolve issue
 ## UI foundations
 
 - Use native buttons, links, and other controls for their intended actions. Reuse existing shared components and treatments where they fit, such as `InlineText`, `.control`, `.control-primary`, and `.command-block`. Extend a treatment only when the approved design calls for a variant; don’t introduce a generic wrapper just to share styling.
-- Use the palette, typography, spacing, and other shared tokens in [`src/styles/main.css`](src/styles/main.css). Reuse an existing token before adding one. Lesson CSS and SVG use palette tokens rather than literal colors; a new token should serve an approved visual need.
-- Keep simple layout utilities in the Vue template. Use named CSS rules for shared treatments or when they keep responsive, multi-state, or animated styling easier to follow. Keep theme tokens, fonts, and baseline rules in `src/styles/main.css`.
+- Use the palette, typography, spacing, and other shared tokens in [`src/assets/css/main.css`](src/assets/css/main.css). Reuse an existing token before adding one. Lesson CSS and SVG use palette tokens rather than literal colors; a new token should serve an approved visual need.
+- Keep simple layout utilities in the Vue template. Use named CSS rules for shared treatments or when they keep responsive, multi-state, or animated styling easier to follow. Keep theme tokens, fonts, and baseline rules in `src/assets/css/main.css`.
 - Reuse local assets and preserve approved SVG geometry. For decorative monochrome icons that should follow a control’s text color, use inline SVG with `currentColor`. When assets change, verify that they resolve in the production build.
 
 ## UI review

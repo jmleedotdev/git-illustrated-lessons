@@ -13,7 +13,7 @@ test('opens every commit and history step independently and inspects without che
     ],
   ] as const) {
     for (const [index, label] of steps.entries()) {
-      await page.goto(`/#/${slug}/${index + 1}`)
+      await page.goto(`/${slug}/${index + 1}`)
       await expect(page.getByRole('status')).toContainText(`Step ${index + 1} of ${steps.length}`)
       await expect(scene.getByText(label, { exact: true })).toBeVisible()
       await expect(figure).toHaveAttribute('aria-busy', 'false')
@@ -31,7 +31,7 @@ test('opens every commit and history step independently and inspects without che
   await expect(inspector).toContainText('Git keeps a history.')
   await expect(inspector).not.toContainText('Only selected contents go in.')
   await expect(scene.getByText('HEAD → main → c2', { exact: true })).toBeVisible()
-  await expect(page).toHaveURL(/#\/read-the-history\/4$/)
+  await expect(page).toHaveURL(/\/read-the-history\/4$/)
   await expect(page.getByLabel('Git command')).toHaveText('git log')
   await second.click()
   await expect(second).toHaveAttribute('aria-pressed', 'true')
@@ -42,7 +42,7 @@ test('replays commit creation and settles when navigation or reduced motion inte
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/#/record-a-commit/2')
+  await page.goto('/record-a-commit/2')
   const figure = page.getByRole('figure', { name: 'Repository illustration' })
   const scene = figure.getByRole('img', { name: /Repository scene/ })
   const replay = figure.getByRole('button', { name: 'Replay' })
@@ -63,14 +63,14 @@ test('replays commit creation and settles when navigation or reduced motion inte
   await expect(root).toBeVisible()
   await expect(scene.getByText('Version B · Matches c1', { exact: true })).toBeVisible()
   await expect(scene.getByText('Version C · Unstaged edit', { exact: true })).toBeVisible()
-  await expect(page).toHaveURL(/#\/record-a-commit\/2$/)
+  await expect(page).toHaveURL(/\/record-a-commit\/2$/)
 
   await replay.click()
   await expect(figure).toHaveAttribute('aria-busy', 'true')
   await page.getByRole('button', { name: 'Step 1: Review' }).click()
   await expect(figure).toHaveAttribute('aria-busy', 'false')
   await expect(root).toBeHidden()
-  await expect(page).toHaveURL(/#\/record-a-commit\/1$/)
+  await expect(page).toHaveURL(/\/record-a-commit\/1$/)
 
   await page.getByRole('button', { name: 'Next', exact: true }).click()
   await expect(figure).toHaveAttribute('aria-busy', 'true')
@@ -79,14 +79,14 @@ test('replays commit creation and settles when navigation or reduced motion inte
   await expect(replay).toHaveAccessibleDescription('Unavailable with reduced motion.')
   await expect(figure).toHaveAttribute('aria-busy', 'false')
   await expect(root).toBeVisible()
-  await expect(page).toHaveURL(/#\/record-a-commit\/2$/)
+  await expect(page).toHaveURL(/\/record-a-commit\/2$/)
 })
 
 test('keeps history and keyboard inspection reachable on a narrow phone and short desktop', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 700 })
-  await page.goto('/#/read-the-history/4')
+  await page.goto('/read-the-history/4')
   const figure = page.getByRole('figure', { name: 'Repository illustration' })
   const history = figure.getByRole('list', { name: 'Commit history' })
   const scene = figure.getByRole('img', { name: /Repository scene/ })
@@ -129,7 +129,7 @@ test('keeps history and keyboard inspection reachable on a narrow phone and shor
 })
 
 test('reads history newest first with the standard sphere fade duration', async ({ page }) => {
-  await page.goto('/#/read-the-history/4')
+  await page.goto('/read-the-history/4')
   const figure = page.getByRole('figure', { name: 'Repository illustration' })
   const graph = figure.getByRole('img', { name: /Repository scene/ })
   const pulseDuration = (id: string) =>
@@ -143,5 +143,5 @@ test('reads history newest first with the standard sphere fade duration', async 
   expect(await pulseDuration('c1')).toBeUndefined()
   await expect.poll(() => pulseDuration('c1')).toBe(600)
   await expect(figure).toHaveAttribute('aria-busy', 'false')
-  await expect(page).toHaveURL(/#\/read-the-history\/4$/)
+  await expect(page).toHaveURL(/\/read-the-history\/4$/)
 })

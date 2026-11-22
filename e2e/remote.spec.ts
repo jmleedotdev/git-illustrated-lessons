@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
-const create = '/#/create-a-remote-repository/'
-const connect = '/#/connect-local-and-remote/'
+const create = '/create-a-remote-repository/'
+const connect = '/connect-local-and-remote/'
 const noTransfer = /No commits or files are sent/
 
 test('opens every remote step directly with the correct final state', async ({ page }) => {

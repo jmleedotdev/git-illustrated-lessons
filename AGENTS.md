@@ -29,8 +29,8 @@ for preview steps. Use `origin/prototype/git-visual-guide` if the branch is only
 available as a remote-tracking ref. In the prototype directory, the SVG sources
 are `src/App.vue` (staging), `src/HistoryPrototype.vue` (history, branches, and
 merges), and `src/RemotePrototype.vue` (remote). The approved folded page is
-in [FoldedPage.vue](src/scenes/FoldedPage.vue). Use the shared tokens in
-[src/styles/main.css](src/styles/main.css).
+in [FoldedPage.vue](src/components/scenes/FoldedPage.vue). Use the shared tokens in
+[src/assets/css/main.css](src/assets/css/main.css).
 
 When reviewing a lesson UI change, open the matching revised A study and the
 proposed lesson side by side at the same viewport size and zoom. Check the

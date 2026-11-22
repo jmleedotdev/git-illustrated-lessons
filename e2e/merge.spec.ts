@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const url = (step: number) => `/#/bring-work-together/${step}`
+const url = (step: number) => `/bring-work-together/${step}`
 const orderedParents = 'Parent 1: c4 · Parent 2: c3'
 
 for (const viewport of [

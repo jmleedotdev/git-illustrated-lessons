@@ -1,4 +1,5 @@
-import { freezeLesson, type RepositoryState } from './lesson'
+import type { RepositoryState } from '@/types/lesson'
+import { freezeLesson } from './freezeLesson'
 import { ideaFile } from './notes'
 import { afterSecondCommit } from './readHistory'
 

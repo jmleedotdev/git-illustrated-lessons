@@ -3,7 +3,7 @@ import { join, sep } from 'node:path'
 import { lexer, parse, walk } from 'css-tree'
 import { parse as parseComponent } from 'vue/compiler-sfc'
 
-const tokenStylesheet = 'src/styles/main.css'
+const tokenStylesheet = 'src/assets/css/main.css'
 const paintAttributes = /^(?:color|fill|stroke|stop-color|flood-color|lighting-color)$/
 const colorFunctions = /^(?:rgba?|hsla?|hwb|ok?lab|ok?lch|color|device-cmyk)$/
 const colorProperties =

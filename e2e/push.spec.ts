@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-const push = '/#/push-the-work/'
+const push = '/push-the-work/'
 
 test('opens each push step independently and shows the hosted snapshot without publishing ideas as a branch', async ({
   page,
@@ -38,7 +38,7 @@ test('push moves hosted copies while local history stays put, and Replay can be 
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/#/connect-local-and-remote/2')
+  await page.goto('/connect-local-and-remote/2')
   await page.getByRole('link', { name: 'Next: Push the work' }).press('Enter')
   await expect(page.getByRole('heading', { name: 'Push the work' })).toBeFocused()
   await expect(page.getByRole('button', { name: 'Back', exact: true })).toBeDisabled()

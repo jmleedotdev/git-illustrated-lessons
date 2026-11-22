@@ -8,7 +8,7 @@ const titles = [
 
 test('every step is independently readable and navigable', async ({ page }) => {
   for (let index = 0; index < titles.length; index++) {
-    await page.goto(`/#/start-a-repository/${index + 1}`)
+    await page.goto(`/start-a-repository/${index + 1}`)
     await expect(page.getByRole('heading', { name: titles[index], exact: true })).toBeVisible()
     await expect(page.getByRole('img', { name: /Repository scene/ })).toBeVisible()
     await expect(
@@ -30,7 +30,7 @@ test('every step is independently readable and navigable', async ({ page }) => {
   const list = page.getByRole('navigation', { name: 'Lessons' })
   await expect(list.getByText('A little less magic.')).toHaveCount(0)
   await list.getByRole('link', { name: '01 Start a repository', exact: true }).click()
-  await expect(page).toHaveURL(/#\/start-a-repository\/1$/)
+  await expect(page).toHaveURL(/\/start-a-repository\/1$/)
   await expect(page.getByRole('navigation', { name: 'Lessons' })).toBeHidden()
   await expect(page.getByRole('button', { name: 'Lessons', exact: true })).toBeFocused()
   await expect(page.getByText('In Alice’s editor', { exact: true })).toBeVisible()
@@ -39,20 +39,27 @@ test('every step is independently readable and navigable', async ({ page }) => {
   await expect(page.locator('pre')).toHaveCSS('background-color', 'rgb(48, 41, 35)')
 })
 
-test('normalizes hashes and restores completed steps through history and refresh', async ({
+test('normalizes paths and restores completed steps through history and refresh', async ({
   page,
 }) => {
-  for (const hash of [
-    '',
-    '#/unknown/2',
-    '#/start-a-repository/99',
-    '#/start-a-repository/0',
-    '#/start-a-repository/2/extra',
+  for (const path of [
+    '/',
+    '/unknown/2',
+    '/start-a-repository/99',
+    '/start-a-repository/0',
+    '/start-a-repository/2.5',
+    '/start-a-repository/2/extra',
+    '/%25/1',
   ]) {
-    await page.goto('/' + hash)
-    await expect(page).toHaveURL(/#\/start-a-repository\/1$/)
+    await page.goto(path)
+    await expect(page).toHaveURL(/\/start-a-repository\/1$/)
   }
 
+  await page.goto('/edit-and-inspect/99?source=lesson')
+  await expect(page).toHaveURL(/\/edit-and-inspect\/1\?source=lesson$/)
+  await expect(page.getByRole('status')).toContainText('Step 1 of 2')
+
+  await page.goto('/start-a-repository/1')
   await page.getByRole('button', { name: /^Step 3:/ }).click()
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   await expect(scene).toHaveAttribute('aria-busy', 'false')
@@ -65,10 +72,24 @@ test('normalizes hashes and restores completed steps through history and refresh
   await expect(scene).toHaveAttribute('aria-busy', 'false')
 })
 
+test('opens a lesson at a clean URL with query parameters and supports refresh', async ({
+  page,
+}) => {
+  await page.goto('/start-a-repository/2?source=bookmark')
+  await expect(page).toHaveURL(/\/start-a-repository\/2\?source=bookmark$/)
+  await expect(page.getByRole('status')).toContainText('Step 2 of 3')
+  await page.reload()
+  await expect(page.getByRole('status')).toContainText('Step 2 of 3')
+  await expect(page.getByRole('figure', { name: 'Repository illustration' })).toHaveAttribute(
+    'aria-busy',
+    'false',
+  )
+})
+
 test('initialization replays its before and after states and allows interruption', async ({
   page,
 }) => {
-  await page.goto('/#/start-a-repository/2')
+  await page.goto('/start-a-repository/2')
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   const diagram = scene.getByRole('img', { name: /Repository scene/ })
   const replay = page.getByRole('button', { name: 'Replay' })
@@ -109,14 +130,14 @@ test('initialization replays its before and after states and allows interruption
   await page.clock.runFor(1500)
   expect(await scene.evaluate((figure) => figure.getAnimations({ subtree: true }).length)).toBe(0)
   await expect(scene.getByText('Git not initialized')).toBeVisible()
-  await expect(page).toHaveURL(/#\/start-a-repository\/1$/)
+  await expect(page).toHaveURL(/\/start-a-repository\/1$/)
 })
 
 test('supports keyboard focus and applies reduced motion at load and during playback', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.goto('/#/start-a-repository/2')
+  await page.goto('/start-a-repository/2')
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   const replay = page.getByRole('button', { name: 'Replay' })
   await expect(replay).toBeDisabled()
@@ -155,7 +176,7 @@ test('loops the folded-page highlight only while inspecting with motion enabled'
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
-  await page.goto('/#/start-a-repository/3')
+  await page.goto('/start-a-repository/3')
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   const loopState = () =>
     scene.evaluate(
@@ -174,7 +195,7 @@ test('loops the folded-page highlight only while inspecting with motion enabled'
   await expect(replay).toHaveCount(0)
   await scene.getByRole('button', { name: 'Resume animation' }).click()
   await expect.poll(loopState).toBe('running')
-  await expect(page).toHaveURL(/#\/start-a-repository\/3$/)
+  await expect(page).toHaveURL(/\/start-a-repository\/3$/)
 
   await page.getByRole('button', { name: 'Back', exact: true }).click()
   await expect.poll(loopState).toBeUndefined()
@@ -193,7 +214,7 @@ test('loops the folded-page highlight only while inspecting with motion enabled'
 
 test('keeps phone content and keyboard focus clear of fixed navigation', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/#/start-a-repository/3')
+  await page.goto('/start-a-repository/3')
   const bar = page.getByRole('navigation', { name: 'Walkthrough' })
   const story = page.getByText(/^Alice checks git status/)
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
@@ -204,7 +225,7 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
   expect(
     (await bar.getByRole('button', { name: 'Back' }).boundingBox())!.height,
   ).toBeGreaterThanOrEqual(44)
-  await page.goto('/#/start-a-repository/1')
+  await page.goto('/start-a-repository/1')
   await page.getByRole('button', { name: /^Step 3:/ }).press('Tab')
   await expect(details).toBeFocused()
   await expect
@@ -225,7 +246,7 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
       return bounds.y + bounds.height
     })
     .toBeLessThan((await bar.boundingBox())!.y)
-  await page.goto('/#/start-a-repository/3')
+  await page.goto('/start-a-repository/3')
   await page.setViewportSize({ width: 320, height: 700 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(320)
   await expect(page.getByRole('button', { name: 'Pause animation' })).toHaveCSS(
@@ -243,7 +264,7 @@ test('keeps phone content and keyboard focus clear of fixed navigation', async (
 
 test('fits the approved scene and guide layout on desktop', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 })
-  await page.goto('/#/start-a-repository/2')
+  await page.goto('/start-a-repository/2')
   const scene = page.getByRole('figure', { name: 'Repository illustration' })
   const guide = page.getByRole('region', { name: 'Alice initializes Git.' })
   const timeline = page.getByRole('navigation', { name: 'Explanation steps' })

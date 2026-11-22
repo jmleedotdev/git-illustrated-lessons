@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import type { Commit } from '../lessons/lesson'
+import type { Commit } from '@/types/lesson'
 import { describeParents } from './describeParents'
 
 const props = defineProps<{ commits: readonly Commit[]; branchTip?: string }>()
