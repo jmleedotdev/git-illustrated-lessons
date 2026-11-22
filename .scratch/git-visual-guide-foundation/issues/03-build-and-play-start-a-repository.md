@@ -33,12 +33,10 @@ The original ticket and implementation spec govern all lesson behavior and prese
 - `pnpm audit --prod` reported no known vulnerabilities. The full audit still reported two moderate advisories in development test dependencies, for `glob` and `minimatch`. [Scaffolding audit details](01-scaffold-vue-with-human-controlled-setup.md#verification)
 - Standards and Spec reviews led to updated README commands, shared platform geometry and border tokens, an explicit pre-Git file state, a focused opening animation, and stronger interruption checks. The scaffold retains its selected Vue Router dependency. The player owns hash locations through the browser History API.
 
-[Desktop preview](../screenshots/start-repository-desktop.png) · [Phone scene](../screenshots/start-repository-phone.png) · [Phone guide](../screenshots/start-repository-phone-guide.png)
-
 ## Comments
 
 ### Prototype fidelity revision — 20 November 2026
 
 The lesson now uses the approved revised A shell from the `prototype/git-visual-guide` branch, with one bordered stage, a Replay toolbar, named numbered steps, and a separate guide rail. The SVG uses the prototype’s 960×500 viewBox, grid, isometric platform paths, and shadow geometry. The working directory uses the folded-page SVG approved in ticket 02, shared with the showcase. The staging and history platforms are empty as required by the first lesson.
 
-Compared the prototype and production build side by side in Chromium at 1440×900, 1200×560, 390×844, and 320×700. The desktop stage, guide column, and timeline stayed in the same positions within 2 CSS px. The phone layout uses readable labels below the same SVG and keeps Back/Next fixed. The screenshots linked above show the revised production build. `pnpm verify` passed 7 unit tests and 7 Chromium tests per environment after the revision.
+Compared the prototype and production build side by side in Chromium at 1440×900, 1200×560, 390×844, and 320×700. The desktop stage, guide column, and timeline stayed in the same positions within 2 CSS px. The phone layout uses readable labels below the same SVG and keeps Back/Next fixed. `pnpm verify` passed 7 unit tests and 7 Chromium tests per environment after the revision.

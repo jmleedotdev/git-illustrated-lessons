@@ -10,7 +10,9 @@ Issues and specs live as Markdown files in `.scratch/`.
   `.scratch/<feature-slug>/issues/NN-<slug>.md`, numbered from `01`.
 - Record triage state in a `Status:` line near the top.
   Role strings are defined in `triage-labels.md`.
-- Append discussion under `## Comments`.
+- Append discussion and visual review notes under `## Comments`. Record the
+  viewports, observations, and verdict; keep screenshots and recordings out of
+  the repository.
 
 When asked to publish, create the appropriate file under `.scratch/`.
 When asked to fetch a ticket, read its referenced file.
