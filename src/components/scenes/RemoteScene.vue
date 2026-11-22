@@ -5,6 +5,7 @@ import { checkoutTip } from '@/utils/checkoutTip'
 import type { Presentation } from '@/composables/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import CommitSphere from './CommitSphere.vue'
+import HistoryLegend from './HistoryLegend.vue'
 
 const props = defineProps<{
   presentation: Presentation
@@ -304,58 +305,36 @@ watchPostEffect((onCleanup) => {
     <p v-if="replayUnavailable" id="remote-motion-reason" class="motion-reason text-label">
       {{ replayUnavailable }}
     </p>
-    <div class="remote-compact story-text">
-      <p>
-        <strong>Alice’s computer</strong><br />{{ head }}<br />* {{ state.head }} is current · ideas
-        →
-        {{ state.branches?.ideas }}
-      </p>
-      <p v-if="origin" class="remote-compact-link">
-        <span data-remote-part="origin"
-          ><InlineText text="`origin` names the GitHub address."
-        /></span>
-        <span v-if="hostedMain" data-remote-part="push"><br />Push sent main’s history.</span>
-      </p>
-      <p>
-        <strong>GitHub</strong
-        ><span v-if="hosted" data-remote-part="hosted-name"> / {{ hosted.name }}</span>
-        <span v-if="hostedMain" class="block" data-remote-part="published-summary">
-          main → {{ hostedMain }} · {{ hostedRange }}
+    <section aria-label="Repository summary" class="history-summary pb-2">
+      <div class="history-summary-cards story-text">
+        <p>
+          <strong class="block">Alice’s computer</strong>
+          <span class="block">{{ head }}</span>
+          <span>* {{ state.head }} is current · ideas → {{ state.branches?.ideas }}</span>
+        </p>
+        <p>
+          <strong class="block">GitHub</strong>
+          <span v-if="hosted" class="block" data-remote-part="hosted-name">
+            {{ hosted.name }}
+            <span v-if="!hostedMain" class="block">No commits yet</span>
+          </span>
+          <span v-else>No repository yet</span>
+          <span v-if="hostedMain" class="block" data-remote-part="published-summary">
+            main → {{ hostedMain }} · {{ hostedRange }}
+          </span>
+        </p>
+      </div>
+      <p v-if="origin" class="pt-2 text-label">
+        <span data-remote-part="origin">
+          <InlineText text="`origin` names the GitHub address." />
         </span>
+        <span v-if="hostedMain" data-remote-part="push"> Push sent main’s history.</span>
       </p>
-    </div>
+      <HistoryLegend />
+    </section>
     <figcaption id="remote-scene-note" class="scene-note">
       <span aria-hidden="true" class="scene-status-dot"></span>
       <InlineText :text="description" />
     </figcaption>
   </figure>
 </template>
-
-<style scoped>
-.remote-compact {
-  display: none;
-}
-@media (max-width: 1100px), (max-height: 760px) {
-  .remote-compact {
-    display: grid;
-    gap: var(--spacing-inset);
-    padding: var(--spacing-inset);
-  }
-  .remote-compact-link {
-    padding-inline-start: var(--spacing-inset);
-    border-inline-start: var(--border-ink) dashed var(--color-focus);
-  }
-}
-@media (width > 1100px) and (max-height: 760px) {
-  .remote-compact {
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-  }
-  .remote-compact-link {
-    max-width: 18ch;
-  }
-  .remote-compact > :last-child {
-    grid-column: 3;
-  }
-}
-</style>

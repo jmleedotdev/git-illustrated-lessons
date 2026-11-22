@@ -5,6 +5,7 @@ import { checkoutTip } from '@/utils/checkoutTip'
 import type { Presentation } from '@/composables/createPlayer'
 import InlineText from '../ui/InlineText.vue'
 import CommitSphere from './CommitSphere.vue'
+import HistoryLegend from './HistoryLegend.vue'
 import { describeParents } from './describeParents'
 import SnapshotInspector from './SnapshotInspector.vue'
 import FoldedPage from './FoldedPage.vue'
@@ -679,7 +680,7 @@ watch(
       <section
         v-if="branchHistory"
         aria-label="Checked-out contents"
-        class="branch-checkout grid grid-cols-2 gap-1 pt-1 text-label [overflow-wrap:anywhere]"
+        class="history-summary-cards text-label"
       >
         <div v-for="zone in checkout" :key="zone.key">
           <h3 class="font-bold">{{ zone.label }}</h3>
@@ -719,9 +720,7 @@ watch(
           {{ describeParents(commit.parents) }}
         </li>
       </ul>
-      <p class="history-legend">
-        <strong>*</strong> current branch · Arrows point to parents · Spheres represent snapshots.
-      </p>
+      <HistoryLegend />
       <SnapshotInspector
         :commits="historySummary.commits"
         :branch-tip="checkoutTip(historySummary)"

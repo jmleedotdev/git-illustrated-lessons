@@ -106,6 +106,33 @@ test('navigates both lessons and cancels only the configuration reveal on interr
 })
 
 for (const [width, height] of [
+  [1440, 900],
+  [320, 700],
+] as const) {
+  test(`shows both repository summaries and the history legend at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height })
+    for (const [path, githubStatus] of [
+      [create + '1', 'No repository yet'],
+      [create + '2', 'No commits yet'],
+      [connect + '2', 'No commits yet'],
+      ['/push-the-work/2', 'main → c5 · c1–c5'],
+    ] as const) {
+      await page.goto(path)
+      const figure = page.getByRole('figure', { name: 'Local and GitHub repositories' })
+      const summary = figure.getByRole('region', { name: 'Repository summary' })
+      await expect(figure.getByRole('img')).toBeVisible()
+      await expect(summary.getByText('Alice’s computer', { exact: true })).toBeVisible()
+      await expect(summary.getByText('GitHub', { exact: true })).toBeVisible()
+      await expect(summary.getByText(githubStatus, { exact: true })).toBeVisible()
+      await expect(
+        figure.getByText(/Arrows point to parents · Spheres represent snapshots/),
+      ).toBeVisible()
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width)
+    }
+  })
+}
+
+for (const [width, height] of [
   [1200, 560],
   [1280, 720],
 ] as const) {

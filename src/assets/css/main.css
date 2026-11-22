@@ -352,12 +352,19 @@ html:has(.lesson-app) {
   padding: var(--spacing) var(--spacing-inset);
   color: var(--color-focus);
 }
-.branch-checkout > div {
+.history-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing);
+  padding-top: var(--spacing);
+  overflow-wrap: anywhere;
+}
+.history-summary-cards > * {
   padding: calc(2 * var(--spacing));
   border-radius: var(--radius-control);
   background: var(--color-peach);
 }
-.branch-checkout > div + div {
+.history-summary-cards > :nth-child(2) {
   background: var(--color-slate);
 }
 .zone-summary,
